@@ -18,25 +18,22 @@
       rel="stylesheet"
     />
     <link
+      href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Noto+Sans+KR:wght@100..900&display=swap"
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css?family=Roboto:400,700"
-    />
-    <link
-      rel="icon"
-      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💻</text></svg>"
     />
     <style>
       body {
-        font-family: "Roboto", sans-serif;
-        padding: 20px;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        font-family: "Noto Sans KR", serif;
+        background-color: #f9ebde;
+        color: #815854;
       }
       .container {
-        max-width: 800px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        border-radius: 10px;
-        padding: 30px;
+        max-width: 900px;
+        margin-top: 30px;
         background-color: white;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+        padding: 30px;
       }
       .profile-img {
         border-radius: 50%;
@@ -44,193 +41,145 @@
         height: 150px;
         object-fit: cover;
         margin-bottom: 20px;
-        border: 3px solid #0d6efd;
-      }
-      .skills-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
+        border: 4px solid #815854;
       }
       .skills-list .badge {
         font-size: 0.9rem;
         padding: 8px 16px;
         border-radius: 20px;
-        transition: all 0.3s ease-in-out;
-      }
-      .skills-list .badge:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        background-color: #815854;
+        color: white;
       }
       .carousel-item img {
-        width: 100%;
         height: 300px;
         object-fit: cover;
         border-radius: 10px;
       }
-      .carousel-control-prev,
-      .carousel-control-next {
-        transition: all 0.3s ease-in-out;
-      }
-      .carousel-control-prev:hover,
-      .carousel-control-next:hover {
-        background-color: rgba(0, 0, 0, 0.2);
-      }
-      .toast-container {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-      }
-      .spinner-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 200px;
-      }
-      .btn-primary {
-        transition: all 0.3s ease-in-out;
-      }
-      .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      }
     </style>
   </head>
   <body>
+    <header class="text-center py-4 bg-light mb-4">
+      <h1 class="display-6 fw-bold">자바 백엔드 개발자 포트폴리오</h1>
+    </header>
+
     <div class="container">
-      <div class="d-flex justify-content-center">
+      <!-- Profile Section -->
+      <div class="text-center">
         <img
           src="./web-app-manifest-512x512.png"
           alt="프로필 사진"
           class="profile-img"
         />
-      </div>
-      <h1 class="text-center mb-4">자바 백엔드 개발자</h1>
-
-      <div class="alert alert-info" role="alert">
-        <h4 class="alert-heading">기술과 혁신에 대한 열정</h4>
-        <p>
-          주니어 개발자로서 혁신적인 프로젝트에 기여하고자 합니다. 자바와 백엔드
-          기술에 대한 탄탄한 기초를 가지고 있으며, 프론트엔드 개발에도 많은
-          관심을 두고 있습니다. 또한, ChatGPT, Cline, Gemini와 같은 AI 도구들을
-          활용하여 창의적이고 효율적인 문제 해결에 접근하고 있습니다.
-        </p>
+        <h2 class="mt-3">팬텀</h2>
+        <p class="text-muted">열정적인 주니어 자바 백엔드 개발자</p>
       </div>
 
-      <div class="card mb-4 shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title">기술 스택</h5>
-          <div class="skills-list">
-            <span class="badge bg-primary">Java 11+</span>
-            <span class="badge bg-secondary">Spring Boot</span>
-            <span class="badge bg-success">HTML5</span>
-            <span class="badge bg-danger">CSS3</span>
-            <span class="badge bg-warning">JavaScript ES6</span>
-            <span class="badge bg-info">Bootstrap 5</span>
-            <span class="badge bg-info">Git</span>
-            <span class="badge bg-primary">SQL</span>
-            <span class="badge bg-secondary">REST API</span>
-          </div>
+      <!-- About Section -->
+      <section class="mb-4">
+        <div class="alert alert-info">
+          <h4 class="alert-heading">기술과 혁신에 대한 열정</h4>
+          <p>
+            주니어 개발자로서 혁신적인 프로젝트에 기여하고자 합니다. 자바와
+            백엔드 기술에 대한 탄탄한 기초를 가지고 있으며, 프론트엔드 개발에도
+            많은 관심을 두고 있습니다. 최신 기술 도구를 활용하여 창의적이고
+            효율적인 문제 해결에 접근하고 있습니다.
+          </p>
         </div>
-      </div>
+      </section>
 
-      <div
-        id="carouselExampleCaptions"
-        class="carousel slide mb-4"
-        data-bs-ride="carousel"
-      >
-        <div class="carousel-inner">
-          <div class="carousel-item active">
-            <img
-              src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-              class="d-block w-100"
-              alt="프로젝트 1"
-            />
-            <div class="carousel-caption d-none d-md-block">
-              <h5>프로젝트 1</h5>
-              <p>프로젝트 1에 대한 설명입니다.</p>
-            </div>
-          </div>
-          <div class="carousel-item">
-            <img
-              src="https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-              class="d-block w-100"
-              alt="프로젝트 2"
-            />
-            <div class="carousel-caption d-none d-md-block">
-              <h5>프로젝트 2</h5>
-              <p>프로젝트 2에 대한 설명입니다.</p>
-            </div>
-          </div>
-          <div class="carousel-item">
-            <img
-              src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=3871&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-              class="d-block w-100"
-              alt="프로젝트 3"
-            />
-            <div class="carousel-caption d-none d-md-block">
-              <h5>프로젝트 3</h5>
-              <p>프로젝트 3에 대한 설명입니다.</p>
-            </div>
-          </div>
+      <!-- Skills Section -->
+      <section class="mb-4">
+        <h3>기술 스택</h3>
+        <div class="skills-list d-flex flex-wrap gap-2">
+          <span class="badge">Java 11+</span>
+          <span class="badge">Spring Boot</span>
+          <span class="badge">HTML5</span>
+          <span class="badge">CSS3</span>
+          <span class="badge">JavaScript ES6</span>
+          <span class="badge">Bootstrap 5</span>
+          <span class="badge">Git</span>
+          <span class="badge">SQL</span>
+          <span class="badge">REST API</span>
         </div>
-        <button
-          class="carousel-control-prev"
-          type="button"
-          data-bs-target="#carouselExampleCaptions"
-          data-bs-slide="prev"
-        >
-          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-          <span class="visually-hidden">이전</span>
-        </button>
-        <button
-          class="carousel-control-next"
-          type="button"
-          data-bs-target="#carouselExampleCaptions"
-          data-bs-slide="next"
-        >
-          <span class="carousel-control-next-icon" aria-hidden="true"></span>
-          <span class="visually-hidden">다음</span>
-        </button>
-      </div>
+      </section>
 
-      <div class="accordion mb-4" id="accordionExample">
-        <div class="accordion-item">
-          <h2 class="accordion-header" id="headingOne">
-            <button
-              class="accordion-button"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#collapseOne"
-              aria-expanded="true"
-              aria-controls="collapseOne"
-            >
-              세밀하고 성장 지향적인 접근
-            </button>
-          </h2>
-          <div
-            id="collapseOne"
-            class="accordion-collapse collapse show"
-            aria-labelledby="headingOne"
-            data-bs-parent="#accordionExample"
+      <!-- Projects Section -->
+      <section class="mb-4">
+        <h3>프로젝트</h3>
+        <div
+          id="projectCarousel"
+          class="carousel slide"
+          data-bs-ride="carousel"
+        >
+          <div class="carousel-inner">
+            <div class="carousel-item active">
+              <img
+                src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=3870&auto=format&fit=crop"
+                class="d-block w-100"
+                alt="프로젝트 1"
+              />
+              <div class="carousel-caption d-none d-md-block">
+                <h5>프로젝트 1</h5>
+                <p>프로젝트 1에 대한 설명입니다.</p>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <img
+                src="https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=3870&auto=format&fit=crop"
+                class="d-block w-100"
+                alt="프로젝트 2"
+              />
+              <div class="carousel-caption d-none d-md-block">
+                <h5>프로젝트 2</h5>
+                <p>프로젝트 2에 대한 설명입니다.</p>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <img
+                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=3871&auto=format&fit=crop"
+                class="d-block w-100"
+                alt="프로젝트 3"
+              />
+              <div class="carousel-caption d-none d-md-block">
+                <h5>프로젝트 3</h5>
+                <p>프로젝트 3에 대한 설명입니다.</p>
+              </div>
+            </div>
+          </div>
+          <button
+            class="carousel-control-prev"
+            type="button"
+            data-bs-target="#projectCarousel"
+            data-bs-slide="prev"
           >
-            <div class="accordion-body">
-              저는 지속적인 학습과 개선에 최선을 다하고 있으며, 세밀한 작업을
-              중요시합니다. 문서화, 가이드, 베스트 프랙티스를 꾸준히 연구하여 제
-              기술과 지식을 향상시키고 있습니다.
-            </div>
-          </div>
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">이전</span>
+          </button>
+          <button
+            class="carousel-control-next"
+            type="button"
+            data-bs-target="#projectCarousel"
+            data-bs-slide="next"
+          >
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">다음</span>
+          </button>
         </div>
-      </div>
+      </section>
 
-      <button
-        type="button"
-        class="btn btn-primary"
-        data-bs-toggle="modal"
-        data-bs-target="#contactModal"
-      >
-        연락하기
-      </button>
+      <!-- Contact Section -->
+      <section class="text-center">
+        <button
+          type="button"
+          class="btn btn-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#contactModal"
+        >
+          연락하기
+        </button>
+      </section>
 
+      <!-- Contact Modal -->
       <div
         class="modal fade"
         id="contactModal"
@@ -267,34 +216,10 @@
       </div>
     </div>
 
-    <div class="toast-container">
-      <div
-        class="toast"
-        role="alert"
-        aria-live="assertive"
-        aria-atomic="true"
-        data-bs-delay="3000"
-      >
-        <div class="toast-header">
-          <strong class="me-auto">알림</strong>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="toast"
-            aria-label="Close"
-          ></button>
-        </div>
-        <div class="toast-body">제 포트폴리오에 오신 것을 환영합니다!</div>
-      </div>
-    </div>
+    <footer class="text-center py-4 mt-4 bg-light">
+      <p>&copy; 2025 팬텀. All rights reserved.</p>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-      const toastElList = [].slice.call(document.querySelectorAll(".toast"));
-      const toastList = toastElList.map(function (toastEl) {
-        return new bootstrap.Toast(toastEl);
-      });
-      toastList.forEach((toast) => toast.show());
-    </script>
   </body>
 </html>
