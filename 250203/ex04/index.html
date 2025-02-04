@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DOM</title>
+  </head>
+  <body>
+    <!-- <script>
+      const handleClick = function () {
+        alert("버튼이 눌렸습니다.");
+      }
+    </script> -->
+
+    <button onclick="handleClick()">버튼</button>
+    <script>
+      // 어차피 호이스팅 됨 -> 위치는 의미 없음 다만... => 표현식으로 하면 여기두면 안됨.
+      function handleClick() {
+        alert("버튼이 눌렸습니다.");
+      }
+    </script>
+
+    <style>
+      #container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+      }
+      #container > div > button {
+        display: flex;
+        background-color: beige;
+        border-radius: 100%;
+        border: 1px solid black;
+        width: 120px;
+        height: 120px;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+      }
+    </style>
+    <div>
+      <button onclick="decrease()">줄어드는 버튼</button>
+      <button onclick="reset()">없애는 버튼</button>
+    </div>
+
+    <div id="container">
+      <div>
+        <button onclick="increase()">늘어나는 버튼</button>
+      </div>
+    </div>
+    <script>
+      let increaseCounter = 0;
+      function increase() {
+        const container = document.querySelector("#container");
+        console.log(container);
+        const item = document.createElement("div");
+        item.innerHTML = '<button onclick="increase()">늘어나는 버튼</button>';
+        container.appendChild(item);
+        // id 관리
+        item.id = `item-${increaseCounter}`;
+        increaseCounter++;
+        // class 관리
+        item.classList.add("item"); // add, remove
+        container.appendChild(item);
+      }
+      function decrease() {
+        try {
+          if (increaseCounter == 0) {
+            throw new Error("더 이상 지울 수 없습니다.");
+          }
+          container.removeChild(container.lastElementChild);
+          alert(`${increaseCounter} 개 남음`);
+          increaseCounter--;
+        } catch {
+          alert("더 이상 지울 수 없습니다.");
+        }
+      }
+      function reset() {
+        // 관리하는 데이터를 지우던가, 관리하는 화면을 지우던가.
+        // const container = document.querySelector("#/container");
+        container.innerHTML =
+          '<div><button onclick="increase()">늘어나는 버튼</button></div>';
+        increaseCounter = 0;
+      }
+    </script>
+  </body>
+</html>
