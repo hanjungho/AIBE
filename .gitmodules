@@ -9,3 +9,7 @@
 [submodule "250203/ex07"]
     path = 250203/ex07
     url = https://github.com/hanjungho/AIBE.git
+
+[submodule "TDD/AIBE_TDD_01_02"]
+    path = TDD/AIBE_TDD_01_02
+    url = https://github.com/hanjungho/AIBE.git
