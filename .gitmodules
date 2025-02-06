@@ -1,0 +1,3 @@
+[submodule "250123/git_ex"]
+	path = 250123/git_ex
+	url = https://github.com/hanjungho/git_ex.git
