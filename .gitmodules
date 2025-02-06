@@ -2,3 +2,10 @@
 	path = TDD/AIBE_TDD_01_01
 	url = https://github.com/hanjungho/AIBE.git
 
+[submodule "250123/git_ex"]
+    path = 250123/git_ex
+    url = https://github.com/hanjungho/AIBE.git
+
+[submodule "250203/ex07"]
+    path = 250203/ex07
+    url = https://github.com/hanjungho/AIBE.git
