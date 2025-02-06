@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ex01</title>
+    <style>
+      div {
+        width: 100px;
+        height: 100px;
+        background-color: aqua;
+        border: 10px solid lime;
+        margin: 50px;
+      }
+
+      #static {
+        position: static;
+        top: 10px;
+      }
+
+      #relative {
+        background-color: orange;
+        border-color: dodgerblue;
+        position: relative;
+        /* top: 10px; */
+        top: 10px; /* left, right, bottom, top */
+      }
+
+      .relative {
+        background-color: orange;
+        border-color: dodgerblue;
+        position: relative;
+      }
+
+      .absolute {
+        position: absolute;
+        top: 50px;
+        left: 50px;
+        border-color: red;
+        background-color: yellow;
+      }
+
+      .fixed {
+        position: fixed;
+        top: 30px;
+        left: 30px;
+      }
+
+      .sticky {
+        position: sticky;
+        top: 20px;
+        border-color: goldenrod;
+        background-color: darkmagenta;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="static">스태틱 (static)1</div>
+    <div class="sticky">스띠끼2</div>
+
+    <div class="relative">
+      릴레이티브3
+      <div>스태틱3-1</div>
+      <div class="relative">릴레이티브3-2</div>
+      <div class="relative">릴레이티브3-3</div>
+      <div class="absolute">앱솔3-4</div>
+      <div id="static">스태틱 (static)3-5</div>
+      <div class="sticky">스띠끼3-6</div>
+    </div>
+
+    <div id="relative">릴레이티브 (relative)4</div>
+    <div class="absolute">앱솔!!5</div>
+    <div class="fixed">픽스드6</div>
+
+    <div class="sticky">스띠끼7</div>
+  </body>
+</html>

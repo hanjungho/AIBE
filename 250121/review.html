@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>review</title>
+    <style>
+      p {
+        color: blueviolet;
+        background-color: bisque;
+      }
+      .p1 {
+        color: brown;
+      }
+      #p2 {
+        color: blue;
+      }
+      .box {
+        width: 100px;
+        height: 100px;
+        padding: 10px;
+        /* 상 우 좌 하 */
+        margin: 20px 20px 10px 10px;
+        border: 2px solid #86a788;
+      }
+      #box-sizing {
+        box-sizing: border-box;
+      }
+      #content-sizing {
+        box-sizing: content-box;
+      }
+      .float {
+        float: left;
+      }
+    </style>
+  </head>
+  <body>
+    <p>나는</p>
+    <div>
+      <p class="p1">프론트엔드 공부</p>
+      <p id="p2">하는중</p>
+    </div>
+    <!-- div>div.box#box-sizing+div.nox#content-sizing -->
+    <div>
+      <div class="box" id="box-sizing"></div>
+      <div class="box" id="content-sizing"></div>
+    </div>
+    <div>
+      <!-- block 요소들 끼리의 float 로직 -->
+      <!-- 한 줄을 다 차지하는 block 요소는 바닥에 깔린다 -->
+      <div class="box float" id="box-sizing"></div>
+      <div class="box float" id="content-sizing"></div>
+      <!-- lorem -->
+      <!-- lorem*20 -->
+      <!-- lore*200 -->
+      Lorem ipsum dolor sit amet consectetur adipisicing elit. Aut doloremque
+      qui quisquam dolore beatae tenetur quam, eligendi in inventore dolor ullam
+      voluptatum voluptates, minima assumenda voluptate exercitationem non
+      facere asperiores. Voluptatibus eum possimus ducimus veritatis nulla
+      repudiandae repellat, explicabo voluptas illum placeat illo culpa
+      consequuntur praesentium. Facere suscipit totam sint non sed deleniti
+      maiores, eos quidem omnis minima enim magni! Voluptas, reiciendis esse
+      aspernatur non quibusdam corporis dolorum corrupti voluptate ullam
+      cupiditate, fugit suscipit nesciunt obcaecati harum facilis voluptatem
+      amet tenetur dignissimos. Possimus optio minima laudantium est
+      reprehenderit repellendus autem. Ad, nobis modi, nostrum repellat aperiam,
+      doloremque non sit pariatur voluptatem fugit expedita qui quidem! Debitis
+      eaque impedit tempora laborum voluptatem laudantium, tenetur sequi
+      explicabo maxime autem accusantium obcaecati enim. Iste, illum. Magnam,
+      repudiandae id animi error consequatur fuga sequi aut quis, tempora odit
+      excepturi est quas labore nulla voluptatem in eveniet commodi adipisci
+      fugiat laborum veritatis? Quaerat, vel temporibus.
+      <div class="box float" id="box-sizing"></div>
+      <div style="clear: both" class="box" id="content-sizing"></div>
+    </div>
+  </body>
+</html>
