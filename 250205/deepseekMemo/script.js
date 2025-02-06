@@ -78,24 +78,28 @@ document.addEventListener("DOMContentLoaded", () => {
     data.push(displayData);
   }
 
-  async function makeReply(text) {
-    // const GROQ_API_KEY =
-    //   "";
-    // const url = "https://api.groq.com/openai/v1/chat/completions";
-    const url = "https://quartz-ruddy-cry.glitch.me/2";
+  async function makeReply(content, model = "deepseek-r1-distill-llama-70b") {
+    const GROQ_API_KEY =
+      "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";
+    const url = "https://api.groq.com/openai/v1/chat/completions";
     const response = await fetch(url, {
       method: "POST",
       body: JSON.stringify({
-        text: `너는 웹 개발자야. "${text}" 이게 뭔지 설명해. 개발 입문자도 알아듣기 쉽게 한글로 사전과 같이 제목을 활용하여 마크다운 문법으로 설명해. 개발 입문자 같은 내가 입력한 프롬프트는 답변 내용에 적지마. 너무 길지않게 요약해서 300자 이내로 적어.`,
+        messages: [
+          {
+            role: "user",
+            content: `너는 웹 개발자야. {${content}} 이게 뭔지 설명해. 개발 입문자도 알아듣기 쉽게 한글로 마크다운 문법으로 설명해.`,
+          },
+        ],
+        model,
       }),
       headers: {
-        // Authorization: `Bearer ${GROQ_API_KEY}`,
+        Authorization: `Bearer ${GROQ_API_KEY}`,
         "Content-Type": "application/json",
       },
     });
     const json = await response.json();
-    //   return json.choices[0].message.content.split("</think>")[1].trim();
-    return json.reply;
+    return json.choices[0].message.content.split("</think>")[1].trim();
   }
 
   form.addEventListener("submit", handleForm);

@@ -84,19 +84,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const response = await fetch(url, {
       method: "POST",
-      // body: JSON.stringify({
-      //   contents: [
-      //     {
-      //       parts: [
-      //         {
-      //           text: `너는 웹 개발자야. {${text}} 이게 뭔지 설명해. 개발 입문자도 알아듣기 쉽게 한글로 마크다운 문법으로 설명해.`,
-      //         },
-      //       ],
-      //     },
-      //   ],
-      // }),
       body: JSON.stringify({
-        text: `너는 웹 개발자야. "${text}" 이게 뭔지 설명해. 개발 입문자도 알아듣기 쉽게 한글로 사전과 같이 제목을 활용하여 마크다운 문법으로 설명해. 개발 입문자 같은 내가 입력한 프롬프트는 답변 내용에 적지마. 너무 길지않게 요약해서 300자 이내로 적어.`,
+        contents: [
+          {
+            parts: [
+              {
+                text: `너는 웹 개발자야. {${text}} 이게 뭔지 설명해. 개발 입문자도 알아듣기 쉽게 한글로 마크다운 문법으로 설명해.`,
+              },
+            ],
+          },
+        ],
       }),
       headers: {
         "Content-Type": "application/json",
@@ -104,8 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const json = await response.json();
-    // return json.candidates[0].content.parts[0].text;
-    return json.reply;
+    return json.candidates[0].content.parts[0].text;
   }
 
   form.addEventListener("submit", handleForm);
