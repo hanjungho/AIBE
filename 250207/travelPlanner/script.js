@@ -5,6 +5,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const submitBtn = controllerForm.querySelector("button[type='submit']");
   const spinner = document.getElementById("spinner");
   const box = document.getElementById("box");
+  const popup = document.getElementById("popup");
+  const popupOverlay = document.getElementById("popupOverlay");
+  const mapIframe = document.getElementById("mapIframe");
 
   // Toast 메시지 표시 함수
   function showToast(message, type) {
@@ -33,11 +36,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Toast 내용 추가
     toast.innerHTML = `
-      <div class="d-flex">
-        <div class="toast-body">${message}</div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-      </div>
-    `;
+        <div class="d-flex">
+          <div class="toast-body">${message}</div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+      `;
 
     // Toast를 Toast container에 추가
     toastContainer.appendChild(toast);
@@ -69,7 +72,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     setTimeout(() => {
       showToast("데이터가 성공적으로 제출되었습니다!", "success");
-      inputField.value = ""; // 필드 비우기
       submitBtn.disabled = false; // 버튼 다시 활성화
       spinner.classList.add("d-none"); // 스피너 숨기기
     }, 1500);
@@ -80,7 +82,56 @@ document.addEventListener("DOMContentLoaded", function () {
     const p = document.createElement("p");
     p.innerHTML = `<pre>${marked.parse(msg)}</pre>`; // 마크다운 파싱
     box.appendChild(p);
+    const links = p.querySelectorAll("a");
+    links.forEach((link) => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault(); // 기본 링크 동작을 막고
+        const mapUrl = link.getAttribute("href"); // 링크의 URL을 가져옴
+        openPopup(mapUrl); // 팝업 열기
+      });
+    });
   };
+
+  // 팝업 열기
+  function openPopup(url) {
+    mapIframe.src = url; // URL을 iframe의 src로 설정
+    popup.style.display = "block"; // 팝업 보이기
+    popupOverlay.style.display = "block"; // 오버레이 보이기
+  }
+
+  // 팝업 닫기
+  function closePopup() {
+    popup.style.display = "none"; // 팝업 숨기기
+    popupOverlay.style.display = "none"; // 오버레이 숨기기
+    mapIframe.src = ""; // iframe 초기화
+  }
+
+  // 팝업 오버레이 클릭 시 팝업 닫기
+  popupOverlay.addEventListener("click", closePopup);
+
+  // submit 데이터 불러오기
+  // submit 데이터 불러오기
+  const submitDataStr = localStorage.getItem("submitData");
+  if (submitDataStr !== null) {
+    const submitData = JSON.parse(submitDataStr); // CSV 형식이므로 쉼표로 분리
+
+    const fieldNames = [
+      "destination", // 여행 도시
+      "travelDays", // 여행 일수
+      "travelStyle", // 여행 스타일
+      "travelStart", // 시작 시간
+      "travelEnd", // 종료 시간
+      "companion", // 동행자
+      "budget", // 예산
+    ];
+
+    fieldNames.forEach((name, index) => {
+      const inputElement = document.querySelector(`[name="${name}"]`);
+      if (inputElement) {
+        inputElement.value = submitData[index] || ""; // 값이 없으면 빈 문자열
+      }
+    });
+  }
 
   const markdown = localStorage.getItem("markdown");
   if (markdown !== null) {
@@ -99,7 +150,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const formData = new FormData(controllerForm);
     const [
-      GEMINI_API_KEY,
       destination,
       travelDays,
       travelStart,
@@ -109,68 +159,30 @@ document.addEventListener("DOMContentLoaded", function () {
       budget,
     ] = [...formData.keys()].map((key) => formData.get(key));
 
-    if (!GEMINI_API_KEY) {
-      addMsg("GEMINI API 키가 설정되지 않았습니다.");
-      return;
-    }
+    localStorage.setItem(
+      "submitData",
+      JSON.stringify([
+        destination,
+        travelDays,
+        travelStart,
+        travelEnd,
+        travelStyle,
+        companion,
+        budget,
+      ])
+    );
 
-    const callModel = async (
-      prompt,
-      modelName = "gemini-2.0-pro-exp-02-05",
-      action = "generateContent",
-      generationConfig = {},
-      autoSearch = true
-    ) => {
-      const modelPool = new Set([
-        "gemini-2.0-flash-001",
-        "gemini-2.0-flash-lite-preview-02-05",
-        "gemini-1.5-flash",
-        "gemini-1.5-flash-8b",
-        "gemini-1.5-pro",
-        "gemini-2.0-pro-exp-02-05",
-        "gemini-2.0-flash-thinking-exp-01-21",
-        "gemini-2.0-flash-exp",
-        "gemini-exp-1206",
-      ]);
-
-      while (true) {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:${action}?key=${GEMINI_API_KEY}`;
-        console.log("처리 시작", new Date(), "모델:", modelName);
-        try {
-          const response = await axios.post(
-            url,
-            {
-              contents: [
-                {
-                  parts: [{ text: prompt }],
-                },
-              ],
-              generationConfig,
-            },
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          return response.data.candidates[0].content.parts[0].text;
-        } catch (error) {
-          console.error("오류 발생:", error);
-          if (error.response && error.response.status === 429) {
-            if (!autoSearch || modelPool.size === 0) {
-              throw new Error("모델 재시도 불가: 요청 거부됨.");
-            }
-            const newModelName = modelPool.keys().next().value;
-            console.log(
-              `모델 ${modelName}에서 429 발생, 모델 ${newModelName}로 전환 후 재시도!`
-            );
-            modelName = newModelName;
-            modelPool.delete(newModelName);
+    const callModel = async (prompt) => {
+      try {
+        const response = await axios.post(
+          "https://quartz-ruddy-cry.glitch.me/000",
+          {
+            text: prompt,
           }
-          await new Promise((resolve) => setTimeout(resolve, 4000));
-        } finally {
-          console.log("처리 종료", new Date());
-        }
+        );
+        return response.data.reply;
+      } catch (error) {
+        console.error("Error: ", error);
       }
     };
 
@@ -182,7 +194,7 @@ document.addEventListener("DOMContentLoaded", function () {
       travelStyle
     ) => {
       const prompt = `당신은 세계 최고의 숙소 전문가입니다. 단어만 나열하고 다른 설명 **없이** 출력하세요. ${travelDays}일 동안 ${travelStyle} 여행을 위한 ${destination}으로 여행을 ${companion}와 같이 갑니다. 전체 여행 예산이 ${budget} 입니다. 이를 바탕으로 숙소를 추천해주세요. 숙소는 숙소 카테고리가 아닌 세부적으로 특정한 이름을 가진 숙박업소 이름입니다. 고를 수 있도록 넉넉하게 2*${travelDays} 개 정도 추천해주세요. 구글에 검색하면 해당 장소가 나오도록 **영어로** 작성해야합니다. 출력 형태는 숙소이름만 작성하고 구분자는 , 으로 합니다.`;
-      return await callModel(prompt, "gemini-2.0-flash-thinking-exp-01-21");
+      return await callModel(prompt);
     };
 
     const firstResponse = await firstAI(
@@ -202,7 +214,7 @@ document.addEventListener("DOMContentLoaded", function () {
       travelStyle
     ) => {
       const prompt = `당신은 세계 최고의 음식점 전문가입니다. 단어만 나열하고 다른 설명 **없이** 출력하세요. ${travelDays}일 동안 ${travelStyle} 여행을 위한 ${destination}으로 여행을 ${companion}와 같이 갑니다. 전체 여행 예산이 ${budget} 입니다. 이를 바탕으로 음식점을 추천해주세요. 음식점은 음식 이름이 아닌 세부적으로 특정한 이름을 가진 가게이름입니다. 고를 수 있도록 넉넉하게 4*${travelDays} 개 정도 추천해주세요. 구글에 검색하면 해당 장소가 나오도록 **영어로** 작성해야합니다. 출력 형태는 음식점이름만 작성하고 구분자는 , 으로 합니다.`;
-      return await callModel(prompt, "gemini-2.0-flash-thinking-exp-01-21");
+      return await callModel(prompt);
     };
 
     const secondResponse = await secondAI(
@@ -222,7 +234,7 @@ document.addEventListener("DOMContentLoaded", function () {
       travelStyle
     ) => {
       const prompt = `당신은 세계 최고의 관광지 전문가입니다. 단어만 나열하고 다른 설명 **없이** 출력하세요. ${travelDays}일 동안 ${travelStyle} 여행을 위한 ${destination}으로 여행을 ${companion}와 같이 갑니다. 전체 여행 예산이 ${budget} 입니다. 이를 바탕으로 관광지를 추천해주세요. 관광지는 도시, 지역명이 아닌 특징이 있는 세부적인 spot입니다. 고를 수 있도록 넉넉하게 3*${travelDays} 개 정도 추천해주세요. 구글에 검색하면 해당 장소가 나오도록 **영어로** 작성해야합니다. 출력 형태는 관광지이름만 작성하고 구분자는 , 으로 합니다.`;
-      return await callModel(prompt, "gemini-2.0-flash-thinking-exp-01-21");
+      return await callModel(prompt);
     };
 
     const thirdResponse = await thirdAI(
@@ -233,6 +245,9 @@ document.addEventListener("DOMContentLoaded", function () {
       travelStyle
     );
     addMsg("- **추천 관광지**: " + thirdResponse);
+
+    addMsg(`
+여행 플래너 생성중입니다. 잠시만 기다려 주십시오.`);
 
     const fourthAI = async (
       firstResponse,
@@ -246,25 +261,144 @@ document.addEventListener("DOMContentLoaded", function () {
       travelDays,
       travelStyle
     ) => {
-      const prompt = `당신은 세계 최고의 여행플래너입니다. 숙소: ${firstResponse}, 음식점: ${secondResponse}, 관광지: ${thirdResponse} 를 참고하여 예산 ${budget} 내에서 ${companion} 와의 최적화된 ${destination} 여행 계획을 작성해주세요. 숙박, 식사, 활동, 교통비 등을 포함하여 전체 여행 계획을 예산에 맞게 최적화해 주세요. 최소한의 이동경로로 최적화해 주세요. 한국이 아닌 나라는 외국입니다. ${destination}이 한국이 아닌 다른 나라이면 시작과 종료는 인천공항으로 입니다. 한국일 경우 시작과 종료는 ${destination}에서 합니다. 여행 기간은 ${travelDays}입니다. 선호하는 여행 스타일은 ${travelStyle}입니다. 시작 시간은 ${travelStart}이고 도착 시간은 ${travelEnd} 입니다. 마크다운 문법으로 작성하세요. 모든 장소는 구글맵의 해당 장소랑 연결되도록 구글맵 링크를 [Apple 여의도](https://www.google.com/maps/search/Apple+여의도){:target="_blank"} 새창으로 열기 헝식은 작성하세요. 올바른 URL 형식은 https://www.google.com/maps/search/Apple+여의도 입니다. 마크다운은 아래를 참고하세요.
-    # ✈ [여행 제목]
-    
-    ## 📌 1. 여행 개요
-    - **여행지:** 
-    - **여행 기간:**  
-    - **여행 컨셉:**  
-    - **예산:**  
-    - **동행자:**  
-    - **환전 계획:**  
-    - **교통 패스:**  
-    
-    ---
-    ## 📅 2. 여행 일정 (Day별 상세 일정)
-    ### 📆 Day 1 (날짜) - 일정 요약  
-    **🚀 시간 | 활동명**  
-    - 상세 내용  
-        `;
-      return await callModel(prompt, "gemini-2.0-flash-thinking-exp-01-21");
+      const prompt = `당신은 세계 최고의 여행플래너입니다. 숙소: ${firstResponse}, 음식점: ${secondResponse}, 관광지: ${thirdResponse} 를 참고하여 예산 ${budget} 내에서 ${companion} 와의 최적화된 ${destination} 여행 계획을 작성해주세요. 숙박, 식사, 활동, 교통비 등을 포함하여 전체 여행 계획을 예산에 맞게 최적화해 주세요. 최소한의 이동경로로 최적화해 주세요. 한국이 아닌 나라는 외국입니다. ${destination}이 한국이 아닌 다른 나라이면 시작과 종료는 인천공항으로 입니다. 한국일 경우 시작과 종료는 ${destination}에서 합니다. 여행 기간은 ${travelDays}입니다. 선호하는 여행 스타일은 ${travelStyle}입니다. 시작 시간은 ${travelStart}이고 도착 시간은 ${travelEnd} 입니다. 마크다운 문법으로 작성하세요. 모든 장소는 구글맵의 해당 장소랑 연결되도록 Google Maps Embed URL을 [Said Mohamed Said Hassane](https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d644.9758132495659!2d2.2984690562746146!3d48.85823743249953!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e67aaced6f6555%3A0x5cc483cdedf1cb4d!2sSaid%20Mohamed%20Said%20Hassane!5e0!3m2!1sko!2sus!4v1739004787243!5m2!1sko!2sus)이러한 예시와 같은 헝식으로 작성하세요. 올바른 URL 형식은 https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d10499.49642609298!2d2.337644!3d48.860611!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e671d877937b0f%3A0xb975fcfa192f84d4!2z66Oo67iM66W0IOuwleusvOq0gA!5e0!3m2!1sko!2sus!4v1738992890522!5m2!1sko!2sus 입니다. 마크다운은 아래를 참고하세요.
+      
+# 여행 플래너
+
+## 📍 여행 정보
+- **여행지:**  
+- **여행 기간:**  
+- **여행 스타일:** (예: 휴양, 관광, 액티비티, 맛집 탐방 등)  
+- **예산:**  
+- **동행 인원:** (예: 1명, 친구 2명, 가족 등)  
+- **환전 필요 여부:** (예: 현지 화폐 필요 여부, 예상 환전 금액)  
+- **필수 체크 사항:** (예: 비자 필요 여부, 백신 접종 증명, 여행 제한 사항 등)  
+
+---
+
+## ✈ 항공편 정보
+- **출발:**  
+- **귀국:**  
+- **항공사:**  
+- **항공권 가격:**  
+- **수하물 규정:** (예: 기내 반입 가능/위탁 수하물 kg 제한)  
+- **항공편 특이사항:** (예: 경유 여부, 기내식 포함 여부)  
+
+---
+
+## 🚆 교통 정보
+- **공항 ↔ 숙소 이동 방법:**  
+- **현지 교통패스:** (예: JR패스, 시티패스 등)  
+- **대중교통 이용 시 팁:**  
+- **렌터카 정보:** (필요 시)  
+- **택시/라이드쉐어 앱:** (예: Uber, Grab, DiDi 등)  
+
+---
+
+## 🏨 숙소 정보
+| 날짜 | 지역 | 숙소 이름 | 가격 | 체크인/체크아웃 | 비고 |
+|------|------|-----------|------|-------------|------|
+|      |      |           |      |             |      |
+
+---
+
+## 📅 상세 일정
+
+### Day 1 - (날짜)
+- **시간** 일정  
+- **시간** 일정  
+- **시간** 일정  
+
+### Day 2 - (날짜)
+- **시간** 일정  
+- **시간** 일정  
+- **시간** 일정  
+
+_(이후 일정 추가)_
+
+---
+
+## 🎭 액티비티 & 관광지
+| 지역 | 장소 | 운영 시간 | 입장료 | 비고 |
+|------|------|---------|------|------|
+|      |      |         |      |      |
+
+---
+
+## 🍽️ 맛집 리스트
+| 지역 | 맛집 이름 | 추천 메뉴 | 가격대 | 비고 |
+|------|----------|----------|--------|------|
+|      |          |          |        |      |
+
+---
+
+## 🛍 쇼핑 리스트
+| 카테고리 | 아이템 | 추천 구매처 | 예상 가격 |
+|----------|--------|----------|--------|
+| 기념품  |        |          |        |
+| 화장품  |        |          |        |
+| 의류    |        |          |        |
+| 전자제품 |        |          |        |
+
+---
+
+## 🏥 응급 상황 대비
+- **현지 긴급 번호:** (예: 경찰, 소방서, 병원)  
+- **대사관/영사관 연락처:**  
+- **가까운 병원 및 약국:**  
+- **여행자 보험 정보:** (보험사, 보장 내용, 긴급 연락처)  
+- **분실 시 대처법:** (여권, 신용카드, 수하물 등)  
+
+---
+
+## 🎟️ 사전 예약 & 준비물
+### ✅ 사전 예약 필수
+- [ ] 예약 항목 1  
+- [ ] 예약 항목 2  
+- [ ] 예약 항목 3  
+
+### 🎒 필수 준비물
+- [ ] 여권 & 비자  
+- [ ] 여행자 보험 서류  
+- [ ] 전자기기 (충전기, 보조배터리 등)  
+- [ ] 현지 교통카드  
+- [ ] 편한 신발  
+- [ ] 개인 약품  
+- [ ] 국제 운전면허증 (필요 시)  
+- [ ] 기타  
+
+---
+
+## 💰 예상 경비
+| 항목 | 예상 비용 | 비고 |
+|------|--------|------|
+| 항공권 |        |      |
+| 숙박비 |        |      |
+| 식비 |        |      |
+| 교통비 |        |      |
+| 입장료 |        |      |
+| 쇼핑 |        |      |
+| 기타 |        |      |
+| **총합** | **0만원** | 예상 비용 |
+
+---
+
+## 💡 여행 팁
+- ✨ 여행지별 유용한 팁 1  
+- ✨ 여행지별 유용한 팁 2  
+- ✨ 여행지별 유용한 팁 3  
+- ✨ 현지 문화 & 에티켓 (예: 팁 문화, 기본 인사말)  
+- ✨ 와이파이 & 데이터 로밍 옵션  
+
+---
+
+## 📝 기타 메모
+- 메모 1  
+- 메모 2  
+- 메모 3   
+
+          `;
+      return await callModel(prompt);
     };
 
     const fourthResponse = await fourthAI(
@@ -280,19 +414,18 @@ document.addEventListener("DOMContentLoaded", function () {
       travelStyle
     );
     localStorage.setItem("markdown", fourthResponse);
-    addMsg(`- AI 여행 플래너: ${fourthResponse}`);
+    addMsg(`- AI 여행 플래너:
+${fourthResponse}`);
 
-    // 올바른 방문 장소 목록 저장
-    localStorage.setItem("array", JSON.stringify(visitPlace));
     const fifthAI = async (fourthResponse) => {
       const prompt = `당신은 최고의 데이터 수집가입니다. 단어만 나열하고 다른 설명 **없이** 출력하세요. 아래의 여행 플래너에서 방문 장소를 수집하여 나열해주세요. 장소는 구글에 검색하면 해당 장소가 나오도록 **영어로** 작성해야합니다. 중복되는 장소없이 나열하세요. 출력 형태는 숙소이름만 작성하고 구분자는 , 으로 합니다.
-                ${fourthResponse}`;
-      return await callModel(prompt, "gemini-2.0-flash-thinking-exp-01-21");
+                  ${fourthResponse}`;
+      return await callModel(prompt);
     };
 
     const fifthResponse = await fifthAI(fourthResponse);
     addMsg(fifthResponse);
 
-    localStorage.setItem("visitPlaces", JSON.stringify(fifthResponse));
+    localStorage.setItem("array", JSON.stringify(fifthResponse));
   });
 });
