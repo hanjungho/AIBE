@@ -204,7 +204,7 @@ document.addEventListener("DOMContentLoaded", function () {
       travelDays,
       travelStyle
     );
-    addMsg("- **추천 숙소**: " + firstResponse);
+    console.log("- **추천 숙소**: " + firstResponse);
 
     const secondAI = async (
       budget,
@@ -224,7 +224,7 @@ document.addEventListener("DOMContentLoaded", function () {
       travelDays,
       travelStyle
     );
-    addMsg("- **추천 음식점**: " + secondResponse);
+    console.log("- **추천 음식점**: " + secondResponse);
 
     const thirdAI = async (
       budget,
@@ -244,7 +244,7 @@ document.addEventListener("DOMContentLoaded", function () {
       travelDays,
       travelStyle
     );
-    addMsg("- **추천 관광지**: " + thirdResponse);
+    console.log("- **추천 관광지**: " + thirdResponse);
 
     addMsg(`
 여행 플래너 생성중입니다. 잠시만 기다려 주십시오.`);
@@ -424,7 +424,7 @@ ${fourthResponse}`);
     };
 
     const fifthResponse = await fifthAI(fourthResponse);
-    addMsg(fifthResponse);
+    console.log(`방문 장소: ${fifthResponse}`);
 
     localStorage.setItem("array", JSON.stringify(fifthResponse));
   });
