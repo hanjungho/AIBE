@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", function () {
     spinner.classList.remove("d-none");
 
     setTimeout(() => {
-      showToast("데이터가 성공적으로 제출되었습니다!", "success");
+      showToast("생성중이니 잠시만 기다려주십시오.", "success");
       submitBtn.disabled = false; // 버튼 다시 활성화
       spinner.classList.add("d-none"); // 스피너 숨기기
     }, 1500);
@@ -175,6 +175,20 @@ document.addEventListener("DOMContentLoaded", function () {
     const callModel = async (prompt) => {
       try {
         const response = await axios.post(
+          "https://quartz-ruddy-cry.glitch.me/0",
+          {
+            text: prompt,
+          }
+        );
+        return response.data.reply;
+      } catch (error) {
+        console.error("Error: ", error);
+      }
+    };
+
+    const callModel000 = async (prompt) => {
+      try {
+        const response = await axios.post(
           "https://quartz-ruddy-cry.glitch.me/000",
           {
             text: prompt,
@@ -245,9 +259,6 @@ document.addEventListener("DOMContentLoaded", function () {
       travelStyle
     );
     console.log("- **추천 관광지**: " + thirdResponse);
-
-    addMsg(`
-여행 플래너 생성중입니다. 잠시만 기다려 주십시오.`);
 
     const fourthAI = async (
       firstResponse,
@@ -398,7 +409,7 @@ _(이후 일정 추가)_
 - 메모 3   
 
           `;
-      return await callModel(prompt);
+      return await callModel000(prompt);
     };
 
     const fourthResponse = await fourthAI(
@@ -414,13 +425,12 @@ _(이후 일정 추가)_
       travelStyle
     );
     localStorage.setItem("markdown", fourthResponse);
-    addMsg(`- AI 여행 플래너:
-${fourthResponse}`);
+    addMsg(`${fourthResponse}`);
 
     const fifthAI = async (fourthResponse) => {
       const prompt = `당신은 최고의 데이터 수집가입니다. 단어만 나열하고 다른 설명 **없이** 출력하세요. 아래의 여행 플래너에서 방문 장소를 수집하여 나열해주세요. 장소는 구글에 검색하면 해당 장소가 나오도록 **영어로** 작성해야합니다. 중복되는 장소없이 나열하세요. 출력 형태는 숙소이름만 작성하고 구분자는 , 으로 합니다.
                   ${fourthResponse}`;
-      return await callModel(prompt);
+      return await callModel000(prompt);
     };
 
     const fifthResponse = await fifthAI(fourthResponse);
