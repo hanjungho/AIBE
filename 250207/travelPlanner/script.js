@@ -82,6 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const p = document.createElement("p");
     p.innerHTML = `<pre>${marked.parse(msg)}</pre>`; // 마크다운 파싱
     box.appendChild(p);
+    // 팝업
     const links = p.querySelectorAll("a");
     links.forEach((link) => {
       link.addEventListener("click", (e) => {
@@ -207,7 +208,7 @@ document.addEventListener("DOMContentLoaded", function () {
       travelDays,
       travelStyle
     ) => {
-      const prompt = `당신은 세계 최고의 숙소 전문가입니다. 단어만 나열하고 다른 설명 **없이** 출력하세요. ${travelDays}일 동안 ${travelStyle} 여행을 위한 ${destination}으로 여행을 ${companion}와 같이 갑니다. 전체 여행 예산이 ${budget} 입니다. 이를 바탕으로 숙소를 추천해주세요. 숙소는 숙소 카테고리가 아닌 세부적으로 특정한 이름을 가진 숙박업소 이름입니다. 구글에 검색하면 해당 장소가 나오도록 **영어로** 작성해야합니다. 출력 형태는 숙소이름만 작성하고 구분자는 , 으로 합니다.`;
+      const prompt = `당신은 세계 최고의 숙소 전문가입니다. 단어만 나열하고 다른 설명 **없이** 출력하세요. ${travelDays}일 동안 ${travelStyle} 여행을 위한 ${destination}으로 여행을 ${companion}와 같이 갑니다. 전체 여행 예산이 ${budget} 입니다. 이를 바탕으로 숙소를 추천해주세요. 하루에 1개의 숙소를 추천해주세요. 숙소는 숙소 카테고리가 아닌 세부적으로 특정한 이름을 가진 숙박업소 이름입니다. 구글에 검색하면 해당 장소가 나오도록 **영어로** 작성해야합니다. 출력 형태는 숙소이름만 작성하고 구분자는 , 으로 합니다.`;
       return await callModel(prompt);
     };
 
@@ -227,7 +228,7 @@ document.addEventListener("DOMContentLoaded", function () {
       travelDays,
       travelStyle
     ) => {
-      const prompt = `당신은 세계 최고의 음식점 전문가입니다. 단어만 나열하고 다른 설명 **없이** 출력하세요. ${travelDays}일 동안 ${travelStyle} 여행을 위한 ${destination}으로 여행을 ${companion}와 같이 갑니다. 전체 여행 예산이 ${budget} 입니다. 이를 바탕으로 음식점을 추천해주세요. 음식점은 음식 이름이 아닌 세부적으로 특정한 이름을 가진 가게이름입니다. 구글에 검색하면 해당 장소가 나오도록 **영어로** 작성해야합니다. 출력 형태는 음식점이름만 작성하고 구분자는 , 으로 합니다.`;
+      const prompt = `당신은 세계 최고의 음식점 전문가입니다. 단어만 나열하고 다른 설명 **없이** 출력하세요. ${travelDays}일 동안 ${travelStyle} 여행을 위한 ${destination}으로 여행을 ${companion}와 같이 갑니다. 전체 여행 예산이 ${budget} 입니다. 이를 바탕으로 음식점을 추천해주세요. 하루에 2개의 음식점을 추천해주세요. 음식점은 음식 이름이 아닌 세부적으로 특정한 이름을 가진 가게이름입니다. 구글에 검색하면 해당 장소가 나오도록 **영어로** 작성해야합니다. 출력 형태는 음식점이름만 작성하고 구분자는 , 으로 합니다.`;
       return await callModel(prompt);
     };
 
@@ -247,7 +248,7 @@ document.addEventListener("DOMContentLoaded", function () {
       travelDays,
       travelStyle
     ) => {
-      const prompt = `당신은 세계 최고의 관광지 전문가입니다. 단어만 나열하고 다른 설명 **없이** 출력하세요. ${travelDays}일 동안 ${travelStyle} 여행을 위한 ${destination}으로 여행을 ${companion}와 같이 갑니다. 전체 여행 예산이 ${budget} 입니다. 이를 바탕으로 관광지를 추천해주세요. 관광지는 도시, 지역명이 아닌 특징이 있는 세부적인 spot입니다. 구글에 검색하면 해당 장소가 나오도록 **영어로** 작성해야합니다. 출력 형태는 관광지이름만 작성하고 구분자는 , 으로 합니다.`;
+      const prompt = `당신은 세계 최고의 관광지 전문가입니다. 단어만 나열하고 다른 설명 **없이** 출력하세요. ${travelDays}일 동안 ${travelStyle} 여행을 위한 ${destination}으로 여행을 ${companion}와 같이 갑니다. 전체 여행 예산이 ${budget} 입니다. 이를 바탕으로 관광지를 추천해주세요. 하루에 1개의 관광지를 추천해주세요. 관광지는 도시, 지역명이 아닌 특징이 있는 세부적인 spot입니다. 구글에 검색하면 해당 장소가 나오도록 **영어로** 작성해야합니다. 출력 형태는 관광지이름만 작성하고 구분자는 , 으로 합니다.`;
       return await callModel(prompt);
     };
 
@@ -307,9 +308,9 @@ document.addEventListener("DOMContentLoaded", function () {
 ---
 
 ## 🏨 숙소 정보
-| 날짜 | 지역 | 숙소 이름 | 가격 | 체크인/체크아웃 | 비고 |
-|------|------|-----------|------|-------------|------|
-|      |      |           |      |             |      |
+| 날짜 | 지역 | 숙소 이름 | 가격 |
+|------|------|-----------|------|
+|      |      |           |      |
 
 ---
 
@@ -330,16 +331,16 @@ _(이후 일정 추가)_
 ---
 
 ## 🎭 액티비티 & 관광지
-| 지역 | 장소 | 운영 시간 | 입장료 | 비고 |
-|------|------|---------|------|------|
-|      |      |         |      |      |
+| 지역 | 장소 | 운영 시간 | 입장료 |
+|------|------|---------|------|
+|      |      |         |      |
 
 ---
 
 ## 🍽️ 맛집 리스트
-| 지역 | 맛집 이름 | 추천 메뉴 | 가격대 | 비고 |
-|------|----------|----------|--------|------|
-|      |          |          |        |      |
+| 지역 | 맛집 이름 | 추천 메뉴 | 가격대 |
+|------|----------|----------|--------|
+|      |          |          |        |
 
 ---
 
@@ -400,13 +401,6 @@ _(이후 일정 추가)_
 - ✨ 여행지별 유용한 팁 3  
 - ✨ 현지 문화 & 에티켓 (예: 팁 문화, 기본 인사말)  
 - ✨ 와이파이 & 데이터 로밍 옵션  
-
----
-
-## 📝 기타 메모
-- 메모 1  
-- 메모 2  
-- 메모 3   
 
           `;
       return await callModel000(prompt);
