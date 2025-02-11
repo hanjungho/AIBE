@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const inputField = controllerForm.querySelector("input[name='destination']"); // 원하는 input 필드를 정확히 선택
   const submitBtn = controllerForm.querySelector("button[type='submit']");
   const spinner1 = document.getElementById("spinner1");
-  const spinner2 = document.getElementById("spinner2");
   const box = document.getElementById("box");
   const popup = document.getElementById("popup");
   const popupOverlay = document.getElementById("popupOverlay");
@@ -219,7 +218,7 @@ document.addEventListener("DOMContentLoaded", function () {
       travelDays,
       travelStyle
     ) => {
-      const prompt = `당신은 세계 최고의 숙소 전문가입니다. 단어만 나열하고 다른 설명 **없이** 출력하세요. 출력 형태는 날짜별로 분류하지 않고 숙소이름만 작성하고 구분자는 , 으로 합니다. ${travelDays}일 동안 ${travelStyle} 여행을 위한 ${destination}으로 여행을 ${companion}와 같이 갑니다. 전체 여행 예산이 ${budget} 입니다. 이를 바탕으로 숙소를 추천해주세요. 하루에 1개의 숙소를 추천해주세요. 숙소는 숙소 카테고리가 아닌 세부적으로 특정한 이름을 가진 숙박업소 이름입니다. 구글에 검색하면 해당 장소가 나오도록 **영어로** 작성해야합니다. `;
+      const prompt = `당신은 세계 최고의 숙소 전문가입니다. 단어만 나열하고 다른 **설명 없이** 출력하세요. 출력 형태는 숙소이름만 작성하고 구분자는 , 으로 합니다. ${travelStyle} 여행을 위한 ${destination}으로 여행을 ${companion}와 같이 갑니다. 전체 여행 예산이 ${budget} 입니다. 이를 바탕으로 숙소를 추천해주세요. 1*${travelDays} 개의 숙소를 추천해주세요. 숙소는 숙소 카테고리가 아닌 세부적으로 특정한 이름을 가진 숙박업소 이름입니다. 구글에 검색하면 해당 장소가 나오도록 **영어로** 작성해야합니다. 출력 형태는 숙소이름만 작성하고 구분자는 , 으로 합니다.`;
       return await callModel(prompt);
     };
 
@@ -239,7 +238,7 @@ document.addEventListener("DOMContentLoaded", function () {
       travelDays,
       travelStyle
     ) => {
-      const prompt = `당신은 세계 최고의 음식점 전문가입니다. 단어만 나열하고 다른 설명 **없이** 출력하세요. 출력 형태는 날짜별로 분류하지 않고 음식점이름만 작성하고 구분자는 , 으로 합니다. ${travelDays}일 동안 ${travelStyle} 여행을 위한 ${destination}으로 여행을 ${companion}와 같이 갑니다. 전체 여행 예산이 ${budget} 입니다. 이를 바탕으로 음식점을 추천해주세요. 하루에 3개의 음식점을 추천해주세요. 음식점은 음식 이름이 아닌 세부적으로 특정한 이름을 가진 가게이름입니다. 구글에 검색하면 해당 장소가 나오도록 **영어로** 작성해야합니다. `;
+      const prompt = `당신은 세계 최고의 음식점 전문가입니다. 단어만 나열하고 다른 **설명 없이** 출력하세요. 출력 형태는 음식점이름만 작성하고 구분자는 , 으로 합니다. ${travelStyle} 여행을 위한 ${destination}으로 여행을 ${companion}와 같이 갑니다. 전체 여행 예산이 ${budget} 입니다. 이를 바탕으로 음식점을 추천해주세요. 3*${travelDays} 개의 음식점을 추천해주세요. 음식점은 음식 이름이 아닌 세부적으로 특정한 이름을 가진 가게이름입니다. 구글에 검색하면 해당 장소가 나오도록 **영어로** 작성해야합니다. 출력 형태는 음식점이름만 작성하고 구분자는 , 으로 합니다.`;
       return await callModel(prompt);
     };
 
@@ -259,7 +258,7 @@ document.addEventListener("DOMContentLoaded", function () {
       travelDays,
       travelStyle
     ) => {
-      const prompt = `당신은 세계 최고의 관광지 전문가입니다. 단어만 나열하고 다른 설명 **없이** 출력하세요. 출력 형태는 날짜별로 분류하지 않고 관광지이름만 작성하고 구분자는 , 으로 합니다. ${travelDays}일 동안 ${travelStyle} 여행을 위한 ${destination}으로 여행을 ${companion}와 같이 갑니다. 전체 여행 예산이 ${budget} 입니다. 이를 바탕으로 관광지를 추천해주세요. 하루에 2개의 관광지를 추천해주세요. 관광지는 도시, 지역명이 아닌 특징이 있는 세부적인 spot입니다. 구글에 검색하면 해당 장소가 나오도록 **영어로** 작성해야합니다. `;
+      const prompt = `당신은 세계 최고의 관광지 전문가입니다. 단어만 나열하고 다른 **설명 없이** 출력하세요. 출력 형태는 관광지이름만 작성하고 구분자는 , 으로 합니다. ${travelStyle} 여행을 위한 ${destination}으로 여행을 ${companion}와 같이 갑니다. 전체 여행 예산이 ${budget} 입니다. 이를 바탕으로 관광지를 추천해주세요. 2*${travelDays} 개의 관광지를 추천해주세요. 관광지는 도시, 지역명이 아닌 특징이 있는 세부적인 spot입니다. 구글에 검색하면 해당 장소가 나오도록 **영어로** 작성해야합니다. 출력 형태는 관광지이름만 작성하고 구분자는 , 으로 합니다.`;
       return await callModel(prompt);
     };
 
@@ -284,7 +283,7 @@ document.addEventListener("DOMContentLoaded", function () {
       travelDays,
       travelStyle
     ) => {
-      const prompt = `당신은 세계 최고의 여행플래너입니다. 숙소: ${firstResponse}, 음식점: ${secondResponse}, 관광지: ${thirdResponse} 를 참고하여 예산 ${budget} 내에서 ${companion} 와의 최적화된 ${destination} 여행 계획을 작성해주세요. 숙박, 식사, 활동, 교통비 등을 포함하여 전체 여행 계획을 예산에 맞게 최적화해 주세요. 최소한의 이동경로로 최적화해 주세요. 한국이 아닌 나라는 외국입니다. ${destination}이 한국이 아닌 다른 나라이면 시작과 종료는 인천공항으로 입니다. 한국일 경우 시작과 종료는 ${destination}에서 합니다. 여행 기간은 ${travelDays}입니다. 선호하는 여행 스타일은 ${travelStyle}입니다. 시작 시간은 ${travelStart}이고 도착 시간은 ${travelEnd} 입니다. 마크다운 문법으로 작성하세요. 모든 장소는 구글맵의 해당 장소랑 연결되도록 Google Maps Embed URL을 [Said Mohamed Said Hassane](https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d644.9758132495659!2d2.2984690562746146!3d48.85823743249953!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e67aaced6f6555%3A0x5cc483cdedf1cb4d!2sSaid%20Mohamed%20Said%20Hassane!5e0!3m2!1sko!2sus!4v1739004787243!5m2!1sko!2sus)이러한 예시와 같은 헝식으로 작성하세요. **절대 사진형태인 ![]() 형태로 작성하면 안돼!**. 올바른 URL 형식은 https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d10499.49642609298!2d2.337644!3d48.860611!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e671d877937b0f%3A0xb975fcfa192f84d4!2z66Oo67iM66W0IOuwleusvOq0gA!5e0!3m2!1sko!2sus!4v1738992890522!5m2!1sko!2sus 입니다. 마크다운은 아래를 참고하세요.
+      const prompt = `당신은 세계 최고의 여행플래너입니다. 숙소: ${firstResponse}, 음식점: ${secondResponse}, 관광지: ${thirdResponse} 를 참고하여 예산 ${budget} 내에서 ${companion} 와의 최적화된 ${destination} 여행 계획을 작성해주세요. 숙박, 식사, 활동, 교통비 등을 포함하여 전체 여행 계획을 예산에 맞게 최적화해 주세요. 최소한의 이동경로로 최적화해 주세요. 한국이 아닌 나라는 외국입니다. ${destination}이 한국이 아닌 다른 나라이면 시작과 종료는 인천공항으로 입니다. 한국일 경우 시작과 종료는 ${destination}에서 합니다. 여행 기간은 ${travelDays}입니다. 선호하는 여행 스타일은 ${travelStyle}입니다. 시작 시간은 ${travelStart}이고 도착 시간은 ${travelEnd} 입니다. 마크다운 문법으로 작성하세요. 모든 장소는 구글맵의 해당 장소랑 연결되도록 Google Maps Embed URL을 [장소명](https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d644.9758132495659!2d2.2984690562746146!3d48.85823743249953!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e67aaced6f6555%3A0x5cc483cdedf1cb4d!2sSaid%20Mohamed%20Said%20Hassane!5e0!3m2!1sko!2sus!4v1739004787243!5m2!1sko!2sus)이러한 예시와 같은 헝식으로 작성하세요. **절대 사진형태인 ![]() 형태로 작성 금지**. 올바른 URL 형식은 https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d10499.49642609298!2d2.337644!3d48.860611!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e671d877937b0f%3A0xb975fcfa192f84d4!2z66Oo67iM66W0IOuwleusvOq0gA!5e0!3m2!1sko!2sus!4v1738992890522!5m2!1sko!2sus 입니다. 마크다운은 아래를 참고하세요.
       
 # 여행 플래너
 
@@ -400,6 +399,7 @@ document.addEventListener("DOMContentLoaded", function () {
       travelStyle
     );
     localStorage.setItem("markdown", fourthResponse);
+    const spinner2 = document.getElementById("spinner2");
     spinner2.classList.add("d-none"); // 스피너 숨기기
     addMsg(`${fourthResponse}`);
 
