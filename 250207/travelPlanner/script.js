@@ -85,11 +85,21 @@ document.addEventListener("DOMContentLoaded", function () {
     // 팝업
     const links = p.querySelectorAll("a");
     links.forEach((link) => {
-      link.addEventListener("click", (e) => {
-        e.preventDefault(); // 기본 링크 동작을 막고
-        const mapUrl = link.getAttribute("href"); // 링크의 URL을 가져옴
-        openPopup(mapUrl); // 팝업 열기
-      });
+      if (
+        link.getAttribute("href").includes("https://www.google.com/maps/embed")
+      ) {
+        link.addEventListener("click", (e) => {
+          e.preventDefault(); // 기본 링크 동작을 막고
+          const mapUrl = link.getAttribute("href"); // 링크의 URL을 가져옴
+          openPopup(mapUrl); // 팝업 열기
+        });
+      } else {
+        link.addEventListener("click", (e) => {
+          e.preventDefault(); // 기본 링크 동작을 막고
+          const mapUrl = link.getAttribute("href"); // 링크의 URL을 가져옴
+          window.open(mapUrl);
+        });
+      }
     });
   };
 
