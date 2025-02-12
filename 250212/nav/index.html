@@ -41,6 +41,12 @@
         color: rgb(0, 0, 0);
       }
 
+      .totalLogo {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
       nav .menu {
         display: flex;
         gap: 20px;
@@ -89,7 +95,7 @@
       }
 
       /* 모달 공통 스타일 */
-      .login-modal {
+      /* .login-modal {
         display: none;
         position: fixed;
         top: 0;
@@ -100,13 +106,13 @@
         z-index: 100;
         justify-content: center;
         align-items: center;
-      }
+      } */
 
-      .login-modal.open {
+      /* .login-modal.open {
         display: flex;
-      }
+      } */
 
-      .login-box {
+      /* .login-box {
         background-color: rgba(255, 255, 255, 0.8);
         padding: 2rem;
         border-radius: 8px;
@@ -114,24 +120,24 @@
         max-width: 400px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         text-align: center;
-      }
+      } */
 
-      .login-box h2 {
+      /* .login-box h2 {
         margin-bottom: 1.5rem;
         font-size: 1.8rem;
         color: #333;
-      }
+      } */
 
-      .login-box input {
+      /* .login-box input {
         width: 100%;
         padding: 0.8rem;
         margin-bottom: 1rem;
         border: 1px solid #ddd;
         border-radius: 4px;
         font-size: 1rem;
-      }
+      } */
 
-      .login-box button {
+      /* .login-box button {
         width: 100%;
         padding: 0.8rem;
         color: white;
@@ -140,30 +146,24 @@
         font-size: 1rem;
         cursor: pointer;
         transition: background-color 0.3s ease;
-      }
+      } */
 
-      .login-box button:not(.close-btn) {
+      /* .login-box button:not(.close-btn) {
         background-color: #444444;
-      }
+      } */
 
-      .login-box button:not(.close-btn):hover {
+      /* .login-box button:not(.close-btn):hover {
         background-color: #343434;
-      }
+      } */
 
-      .login-box .close-btn {
+      /* .login-box .close-btn {
         background-color: #797979;
         margin-top: 1rem;
-      }
+      } */
 
-      .login-box .close-btn:hover {
+      /* .login-box .close-btn:hover {
         background-color: #5e5e5e;
-      }
-
-      .totalLogo {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
+      } */
 
       .bottomBar {
         position: fixed; /* 화면 하단에 고정 */
@@ -196,7 +196,7 @@
     </nav>
 
     <!-- 로그인 모달 -->
-    <div class="login-modal" id="loginModal">
+    <!-- <div class="login-modal" id="loginModal">
       <div class="login-box">
         <h2>로그인</h2>
         <input type="text" placeholder="이메일" />
@@ -204,10 +204,10 @@
         <button>로그인</button>
         <button class="close-btn" id="closeLoginModal">닫기</button>
       </div>
-    </div>
+    </div> -->
 
     <!-- 회원가입 모달 -->
-    <div class="login-modal" id="signupModal">
+    <!-- <div class="login-modal" id="signupModal">
       <div class="login-box">
         <h2>회원가입</h2>
         <input type="text" placeholder="이름" />
@@ -217,48 +217,48 @@
         <button>가입하기</button>
         <button class="close-btn" id="closeSignupModal">닫기</button>
       </div>
-    </div>
+    </div> -->
 
     <div class="bottomBar"></div>
 
     <script>
       // 회원가입 모달 제어
-      const signupModal = document.getElementById("signupModal");
-      const openSignupModalBtn = document.getElementById("openSignupModal");
-      const closeSignupModalBtn = document.getElementById("closeSignupModal");
+      // const signupModal = document.getElementById("signupModal");
+      // const openSignupModalBtn = document.getElementById("openSignupModal");
+      // const closeSignupModalBtn = document.getElementById("closeSignupModal");
 
-      openSignupModalBtn.addEventListener("click", () => {
-        signupModal.classList.add("open");
-      });
+      // openSignupModalBtn.addEventListener("click", () => {
+      //   signupModal.classList.add("open");
+      // });
 
-      closeSignupModalBtn.addEventListener("click", () => {
-        signupModal.classList.remove("open");
-      });
+      // closeSignupModalBtn.addEventListener("click", () => {
+      //   signupModal.classList.remove("open");
+      // });
 
-      window.addEventListener("click", (event) => {
-        if (event.target === signupModal) {
-          signupModal.classList.remove("open");
-        }
-      });
+      // window.addEventListener("click", (event) => {
+      //   if (event.target === signupModal) {
+      //     signupModal.classList.remove("open");
+      //   }
+      // });
       // 로그인 모달 제어
-      const loginModal = document.getElementById("loginModal");
-      const openLoginModalBtn = document.getElementById("openLoginModal");
-      const closeLoginModalBtn = document.getElementById("closeLoginModal");
+      // const loginModal = document.getElementById("loginModal");
+      // const openLoginModalBtn = document.getElementById("openLoginModal");
+      // const closeLoginModalBtn = document.getElementById("closeLoginModal");
 
-      openLoginModalBtn.addEventListener("click", () => {
-        loginModal.classList.add("open");
-      });
+      // openLoginModalBtn.addEventListener("click", () => {
+      //   loginModal.classList.add("open");
+      // });
 
-      closeLoginModalBtn.addEventListener("click", () => {
-        loginModal.classList.remove("open");
-      });
+      // closeLoginModalBtn.addEventListener("click", () => {
+      //   loginModal.classList.remove("open");
+      // });
 
       // 모달 외부 클릭시 닫기
-      window.addEventListener("click", (event) => {
-        if (event.target === loginModal) {
-          loginModal.classList.remove("open");
-        }
-      });
+      // window.addEventListener("click", (event) => {
+      //   if (event.target === loginModal) {
+      //     loginModal.classList.remove("open");
+      //   }
+      // });
     </script>
   </body>
 </html>
