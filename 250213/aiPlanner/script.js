@@ -12,12 +12,19 @@ async function initMap(
   const { Map } = await google.maps.importLibrary("maps");
   const { PlacesService } = await google.maps.importLibrary("places");
 
-  if (typeof JSON.parse(latLng) === "object" && latLng !== null) {
-    map = new Map(document.getElementById("map"), {
-      center: JSON.parse(latLng),
-      zoom: 12,
-    });
-  } else {
+  try {
+    if (typeof JSON.parse(latLng) === "object" && latLng !== null) {
+      map = new Map(document.getElementById("map"), {
+        center: JSON.parse(latLng),
+        zoom: 12,
+      });
+    } else {
+      map = new Map(document.getElementById("map"), {
+        center: { lat: 0, lng: 0 },
+        zoom: 12,
+      });
+    }
+  } catch {
     map = new Map(document.getElementById("map"), {
       center: { lat: 0, lng: 0 },
       zoom: 12,
