@@ -1,5 +1,5 @@
 // 구글맵 API 키
-const googlemapAPiKey = "";
+const googlemapAPiKey = "AIzaSyDv3p4H66gnGpN3DtDd7lpMWSkeOGiObUY";
 
 // 구글맵 장소 탐색
 // 비동기 textSearch, 좌표 지정하고 거리로 검색범위, 입력값 정확도(LLM으로 영문으로 된 지역명을 추가시킨 장소명 생성)
