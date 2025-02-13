@@ -7,29 +7,24 @@ let map;
 
 async function initMap(
   places = ["Googleplex"],
-  latLng = '{ "lat": 0, "lng": 0 }'
+  latLngTxt = '{ "lat": 0, "lng": 0 }'
 ) {
   const { Map } = await google.maps.importLibrary("maps");
   const { PlacesService } = await google.maps.importLibrary("places");
 
+  let latLng;
   try {
-    if (typeof JSON.parse(latLng) === "object" && latLng !== null) {
-      map = new Map(document.getElementById("map"), {
-        center: JSON.parse(latLng),
-        zoom: 12,
-      });
-    } else {
-      map = new Map(document.getElementById("map"), {
-        center: { lat: 0, lng: 0 },
-        zoom: 12,
-      });
+    latLng = JSON.parse(latLngTxt);
+    if (typeof latLng !== "object" || latLng === null) {
+      latLng = { lat: 0, lng: 0 };
     }
   } catch {
-    map = new Map(document.getElementById("map"), {
-      center: { lat: 0, lng: 0 },
-      zoom: 12,
-    });
+    latLng = { lat: 0, lng: 0 };
   }
+  map = new Map(document.getElementById("map"), {
+    center: latLng,
+    zoom: 12,
+  });
 
   const service = new PlacesService(map);
 
@@ -45,7 +40,7 @@ async function initMap(
     try {
       const request = {
         query: place,
-        location: JSON.parse(latLng),
+        location: latLng,
         radius: 50000, // 50km
       };
 
