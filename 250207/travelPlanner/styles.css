@@ -330,12 +330,6 @@ pre {
   z-index: 999;
 }
 
-#closePopupBtn {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 /* 닫기 버튼 */
 #closePopupBtn {
   position: absolute; /* 절대 위치로 설정 */
