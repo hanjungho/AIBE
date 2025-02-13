@@ -12,10 +12,17 @@ async function initMap(
   const { Map } = await google.maps.importLibrary("maps");
   const { PlacesService } = await google.maps.importLibrary("places");
 
-  map = new Map(document.getElementById("map"), {
-    center: JSON.parse(latLng),
-    zoom: 12,
-  });
+  if (typeof JSON.parse(latLng) === "object" && latLng !== null) {
+    map = new Map(document.getElementById("map"), {
+      center: JSON.parse(latLng),
+      zoom: 12,
+    });
+  } else {
+    map = new Map(document.getElementById("map"), {
+      center: { lat: 0, lng: 0 },
+      zoom: 12,
+    });
+  }
 
   const service = new PlacesService(map);
 
@@ -440,9 +447,13 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     const thirdAI = async (destination) => {
-      const prompt = `${destination}의 latitude, longitude 를 알려줘. 출력 형식은 설명 없이 { "lat": latitude, "lng": longitude } 로 출력해줘. 다른 내용을 추가하지마.
+      const prompt = `${destination}의 latitude, longitude 를 작성하세요. 출력 형식은 설명 없이 { "lat": latitude, "lng": longitude } 로 출력하십시오. 다른 내용을 추가하지마십시오.
       예시: { "lat": 48.858, "lng": 2.294 }
-      예시: { "lat": 37.422, "lng": 122.084 }`;
+      예시: { "lat": 37.422, "lng": 122.084 }
+      다른 내용 추가하지말고
+      { "lat": latitude, "lng": longitude }
+      형식으로만 출력하십시오.
+      `;
       return await callModel(prompt);
     };
 
