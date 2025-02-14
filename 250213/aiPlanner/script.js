@@ -363,7 +363,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function locationsOpenPopup(places) {
     console.log(places);
-    initMap(places, JSON.parse(localStorage.getItem("location"))); // DOMContentLoaded 후에 places 데이터를 initMap에 전달
+    initMap(places, JSON.parse(localStorage.getItem("location"))); // DOMContentLoaded 후에 places 데이터를 initMap에  전달
     locationsPopup.style.display = "block"; // 팝업 보이기
     locationsPopupOverlay.style.display = "block"; // 오버레이 보이기
     locationsPopupBtn.style.display = "block"; // 팝업 닫기 보이기
