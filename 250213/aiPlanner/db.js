@@ -21,7 +21,7 @@ async function addDBData(userId, name, content, location, dailyPlaces) {
     list_name: name,
     list_content: content || null,
     list_location: location || null,
-    list_daily_places: Array.isArray(dailyPlaces) ? dailyPlaces : null,
+    list_daily_places: dailyPlaces || null,
   };
 
   const { data, error } = await supabase
