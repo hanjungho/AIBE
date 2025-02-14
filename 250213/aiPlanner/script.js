@@ -7,6 +7,7 @@ const googlemapAPiKey = "AIzaSyDv3p4H66gnGpN3DtDd7lpMWSkeOGiObUY";
 // 비동기 textSearch, 좌표 지정하고 거리로 검색범위, 입력값 정확도(LLM으로 영문으로 된 지역명을 추가시킨 장소명 생성)
 let map;
 
+// Google Maps API가 로드된 후 실행할 함수
 async function initMap(
   places = ["Googleplex"],
   latLngTxt = '{ "lat": 0, "lng": 0 }'
@@ -23,6 +24,7 @@ async function initMap(
   } catch {
     latLng = { lat: 0, lng: 0 };
   }
+
   map = new Map(document.getElementById("map"), {
     center: latLng,
     zoom: 12,
@@ -37,7 +39,6 @@ async function initMap(
 
   let bounds = new google.maps.LatLngBounds();
 
-  // 각 장소에 대해 검색을 순차적으로 실행
   for (const place of places) {
     try {
       const request = {
@@ -53,11 +54,9 @@ async function initMap(
             results &&
             results.length > 0
           ) {
-            // 첫 번째 결과만 사용
             const result = results[0];
             const location = result.geometry.location;
 
-            // 마커 생성
             new google.maps.Marker({
               map,
               position: location,
@@ -65,8 +64,6 @@ async function initMap(
             });
 
             bounds.extend(location);
-
-            // 검색 결과 로깅
             console.log(
               `Found place: ${result.name} for search term: ${place}`
             );
@@ -81,20 +78,118 @@ async function initMap(
     }
   }
 
-  // 검색된 장소들이 모두 보이도록 지도 조정
   if (!bounds.isEmpty()) {
     map.fitBounds(bounds);
   }
 }
 
-// Google Maps API 로드
-const scriptUrl = `https://maps.googleapis.com/maps/api/js?key=${googlemapAPiKey}&callback=initMap&libraries=places`;
+// Google Maps API 로드 후 실행할 함수
+function loadGoogleMapsAPI() {
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${googlemapAPiKey}&libraries=places`;
+    script.async = true;
+    script.defer = true;
+    script.onload = resolve; // 스크립트가 로드된 후 resolve 호출
+    document.head.appendChild(script);
+  });
+}
 
-const script = document.createElement("script");
-script.src = scriptUrl;
-script.async = true;
-script.defer = true;
-document.head.appendChild(script);
+// let map;
+
+// async function initMap(
+//   places = ["Googleplex"],
+//   latLngTxt = '{ "lat": 0, "lng": 0 }'
+// ) {
+//   const { Map } = await google.maps.importLibrary("maps");
+//   const { PlacesService } = await google.maps.importLibrary("places");
+
+//   let latLng;
+//   try {
+//     latLng = JSON.parse(latLngTxt);
+//     if (typeof latLng !== "object" || latLng === null) {
+//       latLng = { lat: 0, lng: 0 };
+//     }
+//   } catch {
+//     latLng = { lat: 0, lng: 0 };
+//   }
+//   map = new Map(document.getElementById("map"), {
+//     center: latLng,
+//     zoom: 12,
+//   });
+
+//   const service = new PlacesService(map);
+
+//   if (!places || !Array.isArray(places) || places.length === 0) {
+//     console.error("장소 데이터가 없거나 올바르지 않습니다.");
+//     return;
+//   }
+
+//   let bounds = new google.maps.LatLngBounds();
+
+//   // 각 장소에 대해 검색을 순차적으로 실행
+//   for (const place of places) {
+//     try {
+//       const request = {
+//         query: place,
+//         location: latLng,
+//         radius: 50000, // 50km
+//       };
+
+//       await new Promise((resolve) => {
+//         service.textSearch(request, (results, status) => {
+//           if (
+//             status === google.maps.places.PlacesServiceStatus.OK &&
+//             results &&
+//             results.length > 0
+//           ) {
+//             // 첫 번째 결과만 사용
+//             const result = results[0];
+//             const location = result.geometry.location;
+
+//             // 마커 생성
+//             new google.maps.Marker({
+//               map,
+//               position: location,
+//               title: result.name,
+//             });
+
+//             bounds.extend(location);
+
+//             // 검색 결과 로깅
+//             console.log(
+//               `Found place: ${result.name} for search term: ${place}`
+//             );
+//           } else {
+//             console.warn(`검색 실패 - 장소: ${place}, 상태: ${status}`);
+//           }
+//           resolve();
+//         });
+//       });
+//     } catch (error) {
+//       console.error(`Error searching for ${place}:`, error);
+//     }
+//   }
+
+//   // 검색된 장소들이 모두 보이도록 지도 조정
+//   if (!bounds.isEmpty()) {
+//     map.fitBounds(bounds);
+//   }
+// }
+
+// // Google Maps API 로드
+// const scriptUrl = `https://maps.googleapis.com/maps/api/js?key=${googlemapAPiKey}&callback=initMap&libraries=places`;
+
+// const script = document.createElement("script");
+// script.src = scriptUrl;
+// script.async = true;
+// script.defer = true;
+// document.head.appendChild(script);
+
+// API 로드 후 initMap 실행
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadGoogleMapsAPI();
+});
 
 document.addEventListener("DOMContentLoaded", function () {
   // Form과 요소들을 제대로 선택
