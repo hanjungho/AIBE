@@ -296,14 +296,14 @@ document.addEventListener("DOMContentLoaded", function () {
           // 해당 일정 장소들 팝업 지도에 찍기
           const mapUrl = link.getAttribute("href"); // 링크의 URL을 가져옴
           console.log(mapUrl);
-          locationsArray = JSON.parse(localStorage.getItem("array"));
+          const locationsArray = JSON.parse(localStorage.getItem("array"));
           console.log(locationsArray);
           locationsOpenPopup(locationsArray[mapUrl]);
         });
       } else {
         link.addEventListener("click", (e) => {
           e.preventDefault(); // 기본 링크 동작을 막고
-          linkPlace = link.getAttribute("href");
+          const linkPlace = link.getAttribute("href");
           console.log(linkPlace);
           const mapUrl = `https://www.google.com/maps/embed/v1/place?key=${googlemapAPiKey}&q=${linkPlace}`; // API로 찾은 URL
           openPopup(mapUrl); // 팝업 열기
