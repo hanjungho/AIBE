@@ -261,7 +261,7 @@ document.addEventListener("DOMContentLoaded", function () {
     setTimeout(() => {
       showToast("생성중이니 잠시만 기다려주십시오.", "success");
       submitBtn.disabled = false; // 버튼 다시 활성화
-    }, 1500);
+    }, 3000); // 3초 딜레이
   });
 
   function locationsOpenPopup(places) {
@@ -292,9 +292,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // DAY가 포함되면
         link.addEventListener("click", (e) => {
           e.preventDefault(); // 기본 링크 동작을 막고
-          // **************************
           // 해당 일정 장소들 팝업 지도에 찍기
-          // **************************
           const mapUrl = link.getAttribute("href"); // 링크의 URL을 가져옴
           console.log(mapUrl);
           locationsArray = JSON.parse(localStorage.getItem("array"));
