@@ -403,7 +403,7 @@ document.addEventListener("DOMContentLoaded", function () {
       } else {
         link.addEventListener("click", (e) => {
           e.preventDefault(); // 기본 링크 동작을 막고
-          linkPlace = link.getAttribute("href");
+          const linkPlace = link.getAttribute("href");
           console.log(linkPlace);
           const mapUrl = `https://www.google.com/maps/embed/v1/place?key=${googlemapAPiKey}&q=${linkPlace}`; // API로 찾은 URL
           openPopup(mapUrl); // 팝업 열기
