@@ -270,6 +270,7 @@ document.addEventListener("DOMContentLoaded", function () {
     locationsPopup.style.display = "block"; // 팝업 보이기
     locationsPopupOverlay.style.display = "block"; // 오버레이 보이기
     locationsPopupBtn.style.display = "block"; // 팝업 닫기 보이기
+    showToast("로딩중입니다. 잠시 기다려주십요.", "success");
   }
 
   // 두 번째 기능 (마크다운 파싱 + 로컬 스토리지 활용)
