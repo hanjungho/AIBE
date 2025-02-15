@@ -57,6 +57,14 @@ async function initMap(
           ) {
             const result = results[0];
             const location = result.geometry.location;
+            const placeId = result.place_id;
+            const address = result.formatted_address || "주소 정보 없음";
+            const googleMapsUrl = `https://www.google.com/maps/place/?q=place_id:${placeId}`;
+
+            // 사진 가져오기 (없으면 기본 이미지)
+            let photoUrl =
+              result.photos?.[0]?.getUrl() ||
+              "https://via.placeholder.com/200x150?text=No+Image";
 
             const marker = new google.maps.Marker({
               map,
@@ -65,12 +73,16 @@ async function initMap(
             });
 
             marker.addListener("click", () => {
-              infoWindow.setContent(
-                `<div style="max-width: 200px; font-size: 14px;">
+              infoWindow.setContent(`
+                <div style="max-width: 250px; font-size: 14px;">
+                  <img src="${photoUrl}" alt="${
+                result.name
+              }" style="width: 100%; height: auto; border-radius: 5px; margin-bottom: 8px;">
                   <strong>${result.name}</strong><br>
-                  ${result.formatted_address || "주소 정보 없음"}
-                </div>`
-              );
+                  ${address.replace(/, /g, "<br>")}<br><br>
+                  <a href="${googleMapsUrl}" target="_blank" style="color: blue; text-decoration: underline;">Google 지도에서 보기</a>
+                </div>
+              `);
               infoWindow.open(map, marker);
             });
 
