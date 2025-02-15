@@ -262,7 +262,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Toast를 Toast container에 추가
     toastContainer.appendChild(toast);
 
-    // Bootstrap의 Toast 객체 생성 후, 2초 후에 자동으로 사라지게 설정
+    // Bootstrap의 Toast 객체 생성 후, 3초 후에 자동으로 사라지게 설정
     const bootstrapToast = new bootstrap.Toast(toast, { delay: 3000 });
     bootstrapToast.show();
   }
