@@ -80,6 +80,9 @@ async function initMap(
 
   if (!bounds.isEmpty()) {
     map.fitBounds(bounds);
+    setTimeout(() => {
+      map.setZoom(12); // 원하는 줌 레벨로 조정 (숫자가 클수록 확대)
+    }, 1000); // fitBounds 적용 후 줌 변경 (약간의 지연 추가)
   }
 }
 
