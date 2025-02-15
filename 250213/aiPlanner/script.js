@@ -330,8 +330,9 @@ document.addEventListener("DOMContentLoaded", function () {
           e.preventDefault(); // 기본 링크 동작을 막고
           const linkPlace = link.getAttribute("href");
           console.log(linkPlace);
-          const mapUrl = `https://www.google.com/maps/embed/v1/place?key=${googlemapAPiKey}&q=${linkPlace}`; // API로 찾은 URL
-          openPopup(mapUrl); // 팝업 열기
+          locationsOpenPopup([linkPlace]);
+          // const mapUrl = `https://www.google.com/maps/embed/v1/place?key=${googlemapAPiKey}&q=${linkPlace}`; // API로 찾은 URL
+          // openPopup(mapUrl); // 팝업 열기
         });
       }
     });
