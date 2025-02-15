@@ -64,7 +64,7 @@ async function initMap(
             // 사진 가져오기 (없으면 기본 이미지)
             let photoUrl =
               result.photos?.[0]?.getUrl() ||
-              "https://via.placeholder.com/200x150?text=No+Image";
+              "https://via.placeholder.com/250x150?text=No+Image";
 
             const marker = new google.maps.Marker({
               map,
@@ -74,13 +74,20 @@ async function initMap(
 
             marker.addListener("click", () => {
               infoWindow.setContent(`
-                <div style="max-width: 250px; font-size: 14px;">
-                  <img src="${photoUrl}" alt="${
+                <div class="card" style="width: 250px; border-radius: 8px; overflow: hidden;">
+                  <img src="${photoUrl}" class="card-img-top" alt="${
                 result.name
-              }" style="width: 100%; height: auto; border-radius: 5px; margin-bottom: 8px;">
-                  <strong>${result.name}</strong><br>
-                  ${address.replace(/, /g, "<br>")}<br><br>
-                  <a href="${googleMapsUrl}" target="_blank" style="color: blue; text-decoration: underline;">Google 지도에서 보기</a>
+              }" style="height: 150px; object-fit: cover;">
+                  <div class="card-body p-2">
+                    <h6 class="card-title text-center mb-1">${result.name}</h6>
+                    <p class="card-text text-muted small text-center">${address.replace(
+                      /, /g,
+                      "<br>"
+                    )}</p>
+                    <div class="text-center">
+                      <a href="${googleMapsUrl}" target="_blank" class="btn btn-primary btn-sm">Google 지도에서 보기</a>
+                    </div>
+                  </div>
                 </div>
               `);
               infoWindow.open(map, marker);
