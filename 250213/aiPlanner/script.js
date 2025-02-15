@@ -397,7 +397,7 @@ document.addEventListener("DOMContentLoaded", function () {
                   localStorage.setItem("array", item.list_daily_places);
                   localStorage.setItem("location", item.list_location);
                   localStorage.setItem("markdown", item.list_content);
-                  box.innerHTML = "";
+                  // box.innerHTML = "";
                   // addMsg(불러온 마크다운)
                   addMsg(item.list_content);
                   Swal.fire({
@@ -546,6 +546,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // 두 번째 기능 (마크다운 파싱 + 로컬 스토리지 활용)
   const addMsg = (msg) => {
     const p = document.createElement("p");
+    box.innerHTML = "";
     p.innerHTML = `<pre>${marked.parse(msg)}</pre>`; // 마크다운 파싱
     box.appendChild(p);
     // 팝업
