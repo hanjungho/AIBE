@@ -4,7 +4,7 @@ import { addDBData, getDBDataByUserId, getId, deleteDBData } from "./db.js";
 // 구글맵 API 키
 const googlemapAPiKey = "AIzaSyAg8Mizg_fmz1cMBS3UDFLxOOOzlb0dujw";
 // 구글맵 장소 탐색
-// 비동기 textSearch, 좌표 지정하고 거리로 검색범위, 입력값 정확도(LLM으로 영문으로 된 지역명을 추가시킨 장소명 생성)
+// 비동기 findPlaceFromQuery, 좌표 지정하고 거리로 검색범위
 // let map;
 // let infoWindow; // 하나의 InfoWindow만 사용
 
@@ -151,6 +151,7 @@ async function initMap(
   }
 
   let bounds = new google.maps.LatLngBounds();
+  let completedSearches = 0;
 
   for (const place of places) {
     try {
@@ -159,7 +160,7 @@ async function initMap(
         fields: ["name", "geometry", "formatted_address", "place_id", "photos"],
         locationBias: {
           center: latLng,
-          radius: 50000, // 50km
+          radius: 50000,
         },
       };
 
@@ -173,8 +174,6 @@ async function initMap(
             const result = results[0];
             const location = result.geometry.location;
             const placeId = result.place_id;
-            const address = result.formatted_address || "주소 정보 없음";
-            const googleMapsUrl = `https://www.google.com/maps/place/?q=place_id:${placeId}`;
 
             // 상세 정보 가져오기
             service.getDetails(
@@ -186,8 +185,12 @@ async function initMap(
                 if (
                   detailStatus === google.maps.places.PlacesServiceStatus.OK
                 ) {
+                  const address =
+                    placeResult.formatted_address || "주소 정보 없음";
+                  const googleMapsUrl = `https://www.google.com/maps/place/?q=place_id:${placeId}`;
                   let photoUrl =
                     "https://via.placeholder.com/250x150?text=No+Image";
+
                   if (placeResult.photos && placeResult.photos.length > 0) {
                     photoUrl = placeResult.photos[0].getUrl();
                   }
@@ -195,7 +198,7 @@ async function initMap(
                   const marker = new google.maps.Marker({
                     map,
                     position: location,
-                    title: result.name,
+                    title: placeResult.name,
                   });
 
                   marker.addListener("click", () => {
@@ -210,10 +213,7 @@ async function initMap(
                             placeResult.name
                           }</h6>
                           <p class="card-text text-muted small text-center">
-                            ${placeResult.formatted_address.replace(
-                              /, /g,
-                              "<br>"
-                            )}
+                            ${address.replace(/, /g, "<br>")}
                           </p>
                           <div class="text-center">
                             <a href="${googleMapsUrl}" target="_blank" 
@@ -226,6 +226,26 @@ async function initMap(
                   });
 
                   bounds.extend(location);
+                  completedSearches++;
+
+                  // 모든 검색이 완료되었을 때 bounds 적용
+                  if (completedSearches === places.length) {
+                    if (!bounds.isEmpty()) {
+                      map.fitBounds(bounds);
+
+                      // 단일 장소일 경우 적절한 줌 레벨 설정
+                      if (places.length === 1) {
+                        google.maps.event.addListenerOnce(
+                          map,
+                          "bounds_changed",
+                          () => {
+                            map.setZoom(15);
+                          }
+                        );
+                      }
+                    }
+                  }
+
                   console.log(
                     `Found place: ${placeResult.name} for search term: ${place}`
                   );
@@ -234,22 +254,15 @@ async function initMap(
             );
           } else {
             console.warn(`검색 실패 - 장소: ${place}, 상태: ${status}`);
+            completedSearches++;
           }
           resolve();
         });
       });
     } catch (error) {
       console.error(`Error searching for ${place}:`, error);
+      completedSearches++;
     }
-  }
-
-  if (!bounds.isEmpty()) {
-    map.fitBounds(bounds);
-    setTimeout(() => {
-      if (places.length == 1) {
-        map.setZoom(15);
-      }
-    }, 300);
   }
 }
 
@@ -896,8 +909,8 @@ document.addEventListener("DOMContentLoaded", function () {
       localStorage.setItem("markdown", fourthResponse); // 로컬 스토리지에 저장
 
       const fifthAI = async (fourthResponse) => {
-        const prompt = `당신은 최고의 데이터 수집가입니다. 단어만 나열하고 다른 설명 **없이** 출력하세요. 아래의 여행 플래너에서 방문 장소를 수집하여 나열해주세요. 장소는 구글에 검색하면 해당 장소가 나오도록 지역명 포함 **영어로** 작성해야합니다. 날짜 별로 중복되는 장소없이 나열하세요. 출력 형태는 방문 장소를 날짜 별로 정리하여 Javascript array 형태로 작성하세요. 날짜 별 구분자는 | 입니다. 다른 내용을 추가하지마세요. 장소명에 지역명을 포함하세요. 장소가 **한국일 경우** 영어가 아닌 한글로 작성하세요.
-예시:["첫날장소1 지역", "첫날장소2 지역", "첫날장소3 지역"]|["둘째날장소1 지역", "둘째날장소2 지역", "둘째날장소3 지역", "둘째날장소4 지역"]|["셋째날장소1 지역", "셋째날장소2 지역"]
+        const prompt = `당신은 최고의 데이터 수집가입니다. 단어만 나열하고 다른 설명 **없이** 출력하세요. 아래의 여행 플래너에서 방문 장소를 수집하여 나열해주세요. 장소는 구글에 검색하면 해당 장소가 나오도록 지역명 포함 **영어로** 작성해야합니다. 날짜 별로 중복되는 장소없이 나열하세요. 출력 형태는 방문 장소를 날짜 별로 정리하여 Javascript array 형태로 작성하세요. 날짜 별 구분자는 | 입니다. 다른 내용을 추가하지마세요. 장소가 **한국일 경우** 영어가 아닌 한글로 작성하세요.
+예시:["첫날장소1", "첫날장소2", "첫날장소3"]|["둘째날장소1", "둘째날장소2", "둘째날장소3", "둘째날장소4"]|["셋째날장소1", "셋째날장소2"]
 마크다운을 사용하지 않고 예시와 같은 형식으로만 출력하고 다른 내용을 추가하지 마세요.
 ${fourthResponse}`;
         return await callModel000(prompt);
