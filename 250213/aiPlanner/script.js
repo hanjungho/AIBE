@@ -190,6 +190,12 @@ document.addEventListener("DOMContentLoaded", function () {
         .then((Id) => {
           if (Id) {
             addDBData(Id, nameDB, markdownDB, locationDB, arrayDB);
+            Swal.fire({
+              title: "저장 완료",
+              text: `제목: ${nameDB}`,
+              icon: "success", // 아이콘 변경 가능: success, error, warning, info, question
+              confirmButtonText: "확인",
+            });
           } else {
             console.log("로그인되지 않았거나 유저 정보가 없습니다.");
           }
@@ -197,12 +203,6 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch((error) => {
           console.error("유저 ID 조회 실패:", error);
         });
-      Swal.fire({
-        title: "저장 완료",
-        text: `제목: ${nameDB}`,
-        icon: "success", // 아이콘 변경 가능: success, error, warning, info, question
-        confirmButtonText: "확인",
-      });
     } else {
       showToast("저장할 내용이 없습니다.", "danger");
     }
