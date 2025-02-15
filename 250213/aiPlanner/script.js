@@ -155,110 +155,60 @@ async function initMap(
 
   for (const place of places) {
     try {
-      const request = {
+      // 첫 번째 시도: 정확한 위치 기반 검색
+      const nearbyRequest = {
         query: place,
         fields: ["name", "geometry", "formatted_address", "place_id", "photos"],
         locationBias: {
           center: latLng,
-          radius: 50000,
+          radius: 10000, // 10km로 반경 축소
         },
       };
 
       await new Promise((resolve) => {
-        service.findPlaceFromQuery(request, (results, status) => {
+        service.findPlaceFromQuery(nearbyRequest, async (results, status) => {
           if (
             status === google.maps.places.PlacesServiceStatus.OK &&
             results &&
             results.length > 0
           ) {
-            const result = results[0];
-            const location = result.geometry.location;
-            const placeId = result.place_id;
-
-            service.getDetails(
-              {
-                placeId: placeId,
-                fields: ["name", "formatted_address", "photos"],
+            await processResult(results[0]);
+          } else {
+            // 첫 번째 시도 실패 시, 더 넓은 범위로 재시도
+            console.log(`근처 검색 실패, 더 넓은 범위로 재시도 중: ${place}`);
+            const widerRequest = {
+              query: place,
+              fields: [
+                "name",
+                "geometry",
+                "formatted_address",
+                "place_id",
+                "photos",
+              ],
+              locationBias: {
+                center: latLng,
+                radius: 50000, // 50km
               },
-              (placeResult, detailStatus) => {
+            };
+
+            service.findPlaceFromQuery(
+              widerRequest,
+              async (widerResults, widerStatus) => {
                 if (
-                  detailStatus === google.maps.places.PlacesServiceStatus.OK
+                  widerStatus === google.maps.places.PlacesServiceStatus.OK &&
+                  widerResults &&
+                  widerResults.length > 0
                 ) {
-                  const address =
-                    placeResult.formatted_address || "주소 정보 없음";
-                  const googleMapsUrl = `https://www.google.com/maps/place/?q=place_id:${placeId}`;
-                  const hasPhotos =
-                    placeResult.photos && placeResult.photos.length > 0;
-
-                  const marker = new google.maps.Marker({
-                    map,
-                    position: location,
-                    title: placeResult.name,
-                  });
-
-                  marker.addListener("click", () => {
-                    const photoSection = hasPhotos
-                      ? `
-                      <div class="card-img-top" style="height: 150px; overflow: hidden;">
-                        <img src="${placeResult.photos[0].getUrl()}" 
-                          alt="${placeResult.name}" 
-                          style="width: 100%; height: 100%; object-fit: cover;">
-                      </div>
-                    `
-                      : "";
-
-                    infoWindow.setContent(`
-                      <div class="card" style="width: 100%; border-radius: 8px; overflow: hidden;">
-                        ${photoSection}
-                        <div class="card-body p-2">
-                          <h6 class="card-title text-center mb-1" style="font-size: 14px; margin-top: ${
-                            hasPhotos ? "0" : "8px"
-                          }">
-                            ${placeResult.name}
-                          </h6>
-                          <p class="card-text text-muted small text-center" style="font-size: 12px; margin: 8px 0">
-                            ${address.replace(/, /g, "<br>")}
-                          </p>
-                          <div class="text-center" style="margin-bottom: 8px">
-                            <a href="${googleMapsUrl}" target="_blank" 
-                              class="btn btn-primary btn-sm" style="font-size: 12px">
-                              Google 지도에서 보기
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-                    `);
-                    infoWindow.open(map, marker);
-                  });
-
-                  bounds.extend(location);
-                  completedSearches++;
-
-                  if (completedSearches === places.length) {
-                    if (!bounds.isEmpty()) {
-                      map.fitBounds(bounds);
-
-                      if (places.length === 1) {
-                        google.maps.event.addListenerOnce(
-                          map,
-                          "bounds_changed",
-                          () => {
-                            map.setZoom(15);
-                          }
-                        );
-                      }
-                    }
-                  }
-
-                  console.log(
-                    `Found place: ${placeResult.name} for search term: ${place}`
+                  await processResult(widerResults[0]);
+                } else {
+                  console.warn(
+                    `검색 실패 - 장소: ${place}, 상태: ${widerStatus}`
                   );
+                  completedSearches++;
                 }
+                resolve();
               }
             );
-          } else {
-            console.warn(`검색 실패 - 장소: ${place}, 상태: ${status}`);
-            completedSearches++;
           }
           resolve();
         });
@@ -267,6 +217,93 @@ async function initMap(
       console.error(`Error searching for ${place}:`, error);
       completedSearches++;
     }
+  }
+
+  async function processResult(result) {
+    const location = result.geometry.location;
+    const placeId = result.place_id;
+
+    return new Promise((resolve) => {
+      service.getDetails(
+        {
+          placeId: placeId,
+          fields: ["name", "formatted_address", "photos"],
+        },
+        (placeResult, detailStatus) => {
+          if (detailStatus === google.maps.places.PlacesServiceStatus.OK) {
+            const address = placeResult.formatted_address || "주소 정보 없음";
+            const googleMapsUrl = `https://www.google.com/maps/place/?q=place_id:${placeId}`;
+            const hasPhotos =
+              placeResult.photos && placeResult.photos.length > 0;
+
+            const marker = new google.maps.Marker({
+              map,
+              position: location,
+              title: placeResult.name,
+            });
+
+            marker.addListener("click", () => {
+              const photoSection = hasPhotos
+                ? `
+                <div class="card-img-top" style="height: 150px; overflow: hidden;">
+                  <img src="${placeResult.photos[0].getUrl()}" 
+                    alt="${placeResult.name}" 
+                    style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+              `
+                : "";
+
+              infoWindow.setContent(`
+                <div class="card" style="width: 100%; border-radius: 8px; overflow: hidden;">
+                  ${photoSection}
+                  <div class="card-body p-2">
+                    <h6 class="card-title text-center mb-1" style="font-size: 14px; margin-top: ${
+                      hasPhotos ? "0" : "8px"
+                    }">
+                      ${placeResult.name}
+                    </h6>
+                    <p class="card-text text-muted small text-center" style="font-size: 12px; margin: 8px 0">
+                      ${address.replace(/, /g, "<br>")}
+                    </p>
+                    <div class="text-center" style="margin-bottom: 8px">
+                      <a href="${googleMapsUrl}" target="_blank" 
+                        class="btn btn-primary btn-sm" style="font-size: 12px">
+                        Google 지도에서 보기
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              `);
+              infoWindow.open(map, marker);
+            });
+
+            bounds.extend(location);
+            completedSearches++;
+
+            if (completedSearches === places.length) {
+              if (!bounds.isEmpty()) {
+                map.fitBounds(bounds);
+
+                if (places.length === 1) {
+                  google.maps.event.addListenerOnce(
+                    map,
+                    "bounds_changed",
+                    () => {
+                      map.setZoom(15);
+                    }
+                  );
+                }
+              }
+            }
+
+            console.log(
+              `Found place: ${placeResult.name} for search term: ${place}`
+            );
+          }
+          resolve();
+        }
+      );
+    });
   }
 }
 
@@ -790,6 +827,7 @@ document.addEventListener("DOMContentLoaded", function () {
 장소는 HTML a 태그 형식을 사용하여 href에 URL을 작성하지 않고 href에 장소명을 영문으로 표기
 예시: **<a href="장소명 영문">장소명</a>**
 예시: **<a href="Eiffel Tower">에펠탑</a>**
+href에 들어가는 장소명은 구글맵에 검색할 수 있도록 구체적으로 작성
 장소가 한국인 경우 href에 장소명을 한글로 표기
 장소가 아닌 경우 URL으로 제공
 상세 일정에 Day 1, Day 2, Day 3, ... 또한 HTML a 태그 형식을 사용하여 href에 URL을 작성하지 않고 href에 Day 1, Day 2, Day 3, ... 을 표기
@@ -913,7 +951,7 @@ document.addEventListener("DOMContentLoaded", function () {
       localStorage.setItem("markdown", fourthResponse); // 로컬 스토리지에 저장
 
       const fifthAI = async (fourthResponse) => {
-        const prompt = `당신은 최고의 데이터 수집가입니다. 단어만 나열하고 다른 설명 **없이** 출력하세요. 아래의 여행 플래너에서 방문 장소를 수집하여 나열해주세요. 장소는 구글에 검색하면 해당 장소가 나오도록 지역명 포함 **영어로** 작성해야합니다. 날짜 별로 중복되는 장소없이 나열하세요. 출력 형태는 방문 장소를 날짜 별로 정리하여 Javascript array 형태로 작성하세요. 날짜 별 구분자는 | 입니다. 다른 내용을 추가하지마세요. 장소가 **한국일 경우** 영어가 아닌 한글로 작성하세요.
+        const prompt = `당신은 최고의 데이터 수집가입니다. 단어만 나열하고 다른 설명 **없이** 출력하세요. 아래의 여행 플래너에서 방문 장소를 수집하여 나열해주세요. 장소는 구글에 검색하면 해당 장소가 나오도록 지역명 포함 **영어로** 작성해야합니다. 날짜 별로 중복되는 장소없이 나열하세요. 출력 형태는 방문 장소를 날짜 별로 정리하여 Javascript array 형태로 작성하세요. 날짜 별 구분자는 | 입니다. 다른 내용을 추가하지마세요. 장소명은 구글맵에 검색할 수 있도록 구체적으로 작성하세요. 장소가 **한국일 경우** 영어가 아닌 한글로 작성하세요.
 예시:["첫날장소1", "첫날장소2", "첫날장소3"]|["둘째날장소1", "둘째날장소2", "둘째날장소3", "둘째날장소4"]|["셋째날장소1", "셋째날장소2"]
 마크다운을 사용하지 않고 예시와 같은 형식으로만 출력하고 다른 내용을 추가하지 마세요.
 ${fourthResponse}`;
