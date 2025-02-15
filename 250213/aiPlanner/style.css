@@ -180,3 +180,34 @@ pre {
   border-radius: 5px;
   cursor: pointer;
 }
+
+/* 구글맵 마커 팝업 */
+.card {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.card-img-top {
+  height: 150px;
+  object-fit: cover;
+}
+
+.card-body {
+  padding: 10px;
+}
+
+.card-title {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.card-text {
+  font-size: 12px;
+  color: #666;
+}
+
+.btn-primary {
+  font-size: 12px;
+  padding: 5px 10px;
+}

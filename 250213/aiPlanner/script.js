@@ -162,7 +162,23 @@ document.addEventListener("DOMContentLoaded", function () {
       const arrayDB = localStorage.getItem("array");
       const locationDB = localStorage.getItem("location");
       const submitDataDB = JSON.parse(localStorage.getItem("submitData"));
-      const nameDB = `${submitDataDB[1]}일간의 ${submitDataDB[0]} ${submitDataDB[2]} 여행`;
+      let nameDB = `${submitDataDB[1]}일간의 ${submitDataDB[0]} ${submitDataDB[2]} 여행`;
+      Swal.fire({
+        title: "여행 플래너의 제목을 입력하세요",
+        input: "text",
+        inputPlaceholder: `${submitDataDB[1]}일간의 ${submitDataDB[0]} ${submitDataDB[2]} 여행`,
+        inputValue: `${submitDataDB[1]}일간의 ${submitDataDB[0]} ${submitDataDB[2]} 여행`, // 기본값 설정
+        confirmButtonText: "확인",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          nameDB =
+            result.value.trim() !== ""
+              ? result.value
+              : `${submitDataDB[1]}일간의 ${submitDataDB[0]} ${submitDataDB[2]} 여행`;
+
+          console.log("입력된 값:", nameDB);
+        }
+      });
 
       console.log(nameDB);
       console.log(arrayDB);
@@ -181,6 +197,12 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch((error) => {
           console.error("유저 ID 조회 실패:", error);
         });
+      Swal.fire({
+        title: "저장 완료",
+        text: `제목: ${nameDB}`,
+        icon: "success", // 아이콘 변경 가능: success, error, warning, info, question
+        confirmButtonText: "확인",
+      });
     } else {
       showToast("저장할 내용이 없습니다.", "danger");
     }
