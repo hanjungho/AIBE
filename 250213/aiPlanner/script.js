@@ -155,56 +155,110 @@ async function initMap(
 
   for (const place of places) {
     try {
-      // 첫 번째로 textSearch로 여러 장소를 검색
-      const textSearchRequest = {
+      const request = {
         query: place,
-        location: latLng,
-        radius: 5000, // 5km 반경
         fields: ["name", "geometry", "formatted_address", "place_id", "photos"],
+        locationBias: {
+          center: latLng,
+          radius: 50000,
+        },
       };
 
       await new Promise((resolve) => {
-        service.textSearch(textSearchRequest, async (results, status) => {
-          if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-            const result = results[0]; // 첫 번째 결과 사용 (가장 적합한 결과)
-            await processResult(result, place);
-          } else {
-            console.log(
-              `textSearch 실패, findPlaceFromQuery로 재시도: ${place}`
-            );
-            // textSearch 실패 시 findPlaceFromQuery로 재시도
-            const findPlaceRequest = {
-              query: place,
-              fields: [
-                "name",
-                "geometry",
-                "formatted_address",
-                "place_id",
-                "photos",
-              ],
-              locationBias: {
-                center: latLng,
-                radius: 10000, // 10km로 넓혀서 재시도
-              },
-            };
+        service.findPlaceFromQuery(request, (results, status) => {
+          if (
+            status === google.maps.places.PlacesServiceStatus.OK &&
+            results &&
+            results.length > 0
+          ) {
+            const result = results[0];
+            const location = result.geometry.location;
+            const placeId = result.place_id;
 
-            service.findPlaceFromQuery(
-              findPlaceRequest,
-              async (results, status) => {
+            service.getDetails(
+              {
+                placeId: placeId,
+                fields: ["name", "formatted_address", "photos"],
+              },
+              (placeResult, detailStatus) => {
                 if (
-                  status === google.maps.places.PlacesServiceStatus.OK &&
-                  results &&
-                  results.length > 0
+                  detailStatus === google.maps.places.PlacesServiceStatus.OK
                 ) {
-                  await processResult(results[0], place);
-                } else {
-                  console.warn(
-                    `findPlaceFromQuery 실패: ${place}, 상태: ${status}`
+                  const address =
+                    placeResult.formatted_address || "주소 정보 없음";
+                  const googleMapsUrl = `https://www.google.com/maps/place/?q=place_id:${placeId}`;
+                  const hasPhotos =
+                    placeResult.photos && placeResult.photos.length > 0;
+
+                  const marker = new google.maps.Marker({
+                    map,
+                    position: location,
+                    title: placeResult.name,
+                  });
+
+                  marker.addListener("click", () => {
+                    const photoSection = hasPhotos
+                      ? `
+                      <div class="card-img-top" style="height: 150px; overflow: hidden;">
+                        <img src="${placeResult.photos[0].getUrl()}" 
+                          alt="${placeResult.name}" 
+                          style="width: 100%; height: 100%; object-fit: cover;">
+                      </div>
+                    `
+                      : "";
+
+                    infoWindow.setContent(`
+                      <div class="card" style="width: 100%; border-radius: 8px; overflow: hidden;">
+                        ${photoSection}
+                        <div class="card-body p-2">
+                          <h6 class="card-title text-center mb-1" style="font-size: 14px; margin-top: ${
+                            hasPhotos ? "0" : "8px"
+                          }">
+                            ${placeResult.name}
+                          </h6>
+                          <p class="card-text text-muted small text-center" style="font-size: 12px; margin: 8px 0">
+                            ${address.replace(/, /g, "<br>")}
+                          </p>
+                          <div class="text-center" style="margin-bottom: 8px">
+                            <a href="${googleMapsUrl}" target="_blank" 
+                              class="btn btn-primary btn-sm" style="font-size: 12px">
+                              Google 지도에서 보기
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    `);
+                    infoWindow.open(map, marker);
+                  });
+
+                  bounds.extend(location);
+                  completedSearches++;
+
+                  if (completedSearches === places.length) {
+                    if (!bounds.isEmpty()) {
+                      map.fitBounds(bounds);
+
+                      if (places.length === 1) {
+                        google.maps.event.addListenerOnce(
+                          map,
+                          "bounds_changed",
+                          () => {
+                            map.setZoom(15);
+                          }
+                        );
+                      }
+                    }
+                  }
+
+                  console.log(
+                    `Found place: ${placeResult.name} for search term: ${place}`
                   );
                 }
-                resolve();
               }
             );
+          } else {
+            console.warn(`검색 실패 - 장소: ${place}, 상태: ${status}`);
+            completedSearches++;
           }
           resolve();
         });
@@ -213,93 +267,6 @@ async function initMap(
       console.error(`Error searching for ${place}:`, error);
       completedSearches++;
     }
-  }
-
-  async function processResult(result, searchTerm) {
-    const location = result.geometry.location;
-    const placeId = result.place_id;
-
-    return new Promise((resolve) => {
-      service.getDetails(
-        {
-          placeId: placeId,
-          fields: ["name", "formatted_address", "photos"],
-        },
-        (placeResult, detailStatus) => {
-          if (detailStatus === google.maps.places.PlacesServiceStatus.OK) {
-            const address = placeResult.formatted_address || "주소 정보 없음";
-            const googleMapsUrl = `https://www.google.com/maps/place/?q=place_id:${placeId}`;
-            const hasPhotos =
-              placeResult.photos && placeResult.photos.length > 0;
-
-            const marker = new google.maps.Marker({
-              map,
-              position: location,
-              title: placeResult.name,
-            });
-
-            marker.addListener("click", () => {
-              const photoSection = hasPhotos
-                ? `
-                <div class="card-img-top" style="height: 150px; overflow: hidden;">
-                  <img src="${placeResult.photos[0].getUrl()}" 
-                    alt="${placeResult.name}" 
-                    style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
-              `
-                : "";
-
-              infoWindow.setContent(`
-                <div class="card" style="width: 100%; border-radius: 8px; overflow: hidden;">
-                  ${photoSection}
-                  <div class="card-body p-2">
-                    <h6 class="card-title text-center mb-1" style="font-size: 14px; margin-top: ${
-                      hasPhotos ? "0" : "8px"
-                    }">
-                      ${placeResult.name}
-                    </h6>
-                    <p class="card-text text-muted small text-center" style="font-size: 12px; margin: 8px 0">
-                      ${address.replace(/, /g, "<br>")}
-                    </p>
-                    <div class="text-center" style="margin-bottom: 8px">
-                      <a href="${googleMapsUrl}" target="_blank" 
-                        class="btn btn-primary btn-sm" style="font-size: 12px">
-                        Google 지도에서 보기
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              `);
-              infoWindow.open(map, marker);
-            });
-
-            bounds.extend(location);
-            completedSearches++;
-
-            if (completedSearches === places.length) {
-              if (!bounds.isEmpty()) {
-                map.fitBounds(bounds);
-
-                if (places.length === 1) {
-                  google.maps.event.addListenerOnce(
-                    map,
-                    "bounds_changed",
-                    () => {
-                      map.setZoom(15);
-                    }
-                  );
-                }
-              }
-            }
-
-            console.log(
-              `Found place: ${placeResult.name} for search term: ${searchTerm}`
-            );
-          }
-          resolve();
-        }
-      );
-    });
   }
 }
 
