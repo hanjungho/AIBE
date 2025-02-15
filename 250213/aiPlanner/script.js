@@ -175,7 +175,6 @@ async function initMap(
             const location = result.geometry.location;
             const placeId = result.place_id;
 
-            // 상세 정보 가져오기
             service.getDetails(
               {
                 placeId: placeId,
@@ -188,12 +187,8 @@ async function initMap(
                   const address =
                     placeResult.formatted_address || "주소 정보 없음";
                   const googleMapsUrl = `https://www.google.com/maps/place/?q=place_id:${placeId}`;
-                  let photoUrl =
-                    "https://via.placeholder.com/250x150?text=No+Image";
-
-                  if (placeResult.photos && placeResult.photos.length > 0) {
-                    photoUrl = placeResult.photos[0].getUrl();
-                  }
+                  const hasPhotos =
+                    placeResult.photos && placeResult.photos.length > 0;
 
                   const marker = new google.maps.Marker({
                     map,
@@ -202,22 +197,33 @@ async function initMap(
                   });
 
                   marker.addListener("click", () => {
+                    const photoSection = hasPhotos
+                      ? `
+                      <div class="card-img-top" style="height: 150px; overflow: hidden;">
+                        <img src="${placeResult.photos[0].getUrl()}" 
+                          alt="${placeResult.name}" 
+                          style="width: 100%; height: 100%; object-fit: cover;">
+                      </div>
+                    `
+                      : "";
+
                     infoWindow.setContent(`
                       <div class="card" style="width: 100%; border-radius: 8px; overflow: hidden;">
-                        <img src="${photoUrl}" class="card-img-top" alt="${
-                      placeResult.name
-                    }" 
-                          style="height: 150px; object-fit: cover;">
+                        ${photoSection}
                         <div class="card-body p-2">
-                          <h6 class="card-title text-center mb-1">${
-                            placeResult.name
-                          }</h6>
-                          <p class="card-text text-muted small text-center">
+                          <h6 class="card-title text-center mb-1" style="font-size: 14px; margin-top: ${
+                            hasPhotos ? "0" : "8px"
+                          }">
+                            ${placeResult.name}
+                          </h6>
+                          <p class="card-text text-muted small text-center" style="font-size: 12px; margin: 8px 0">
                             ${address.replace(/, /g, "<br>")}
                           </p>
-                          <div class="text-center">
+                          <div class="text-center" style="margin-bottom: 8px">
                             <a href="${googleMapsUrl}" target="_blank" 
-                              class="btn btn-primary btn-sm">Google 지도에서 보기</a>
+                              class="btn btn-primary btn-sm" style="font-size: 12px">
+                              Google 지도에서 보기
+                            </a>
                           </div>
                         </div>
                       </div>
@@ -228,12 +234,10 @@ async function initMap(
                   bounds.extend(location);
                   completedSearches++;
 
-                  // 모든 검색이 완료되었을 때 bounds 적용
                   if (completedSearches === places.length) {
                     if (!bounds.isEmpty()) {
                       map.fitBounds(bounds);
 
-                      // 단일 장소일 경우 적절한 줌 레벨 설정
                       if (places.length === 1) {
                         google.maps.event.addListenerOnce(
                           map,
