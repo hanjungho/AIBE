@@ -262,7 +262,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Toast를 Toast container에 추가
     toastContainer.appendChild(toast);
 
-    // Bootstrap의 Toast 객체 생성 후, 3초 후에 자동으로 사라지게 설정
+    // Bootstrap의 Toast 객체 생성 후, 2초 후에 자동으로 사라지게 설정
     const bootstrapToast = new bootstrap.Toast(toast, { delay: 3000 });
     bootstrapToast.show();
   }
@@ -298,7 +298,6 @@ document.addEventListener("DOMContentLoaded", function () {
     locationsPopup.style.display = "block"; // 팝업 보이기
     locationsPopupOverlay.style.display = "block"; // 오버레이 보이기
     locationsPopupBtn.style.display = "block"; // 팝업 닫기 보이기
-    showToast("로딩중입니다. 잠시 기다려주십요.", "success");
   }
 
   // 두 번째 기능 (마크다운 파싱 + 로컬 스토리지 활용)
@@ -330,6 +329,7 @@ document.addEventListener("DOMContentLoaded", function () {
           const locationsArray = JSON.parse(localStorage.getItem("array"));
           console.log(locationsArray);
           locationsOpenPopup(locationsArray[mapUrl]);
+          showToast("로딩중입니다. 잠시 기다려주십요.", "success");
         });
       } else {
         link.addEventListener("click", (e) => {
