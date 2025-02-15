@@ -155,13 +155,12 @@ async function initMap(
 
   for (const place of places) {
     try {
-      // 첫 번째 시도: 정확한 위치 기반 검색
       const nearbyRequest = {
         query: place,
         fields: ["name", "geometry", "formatted_address", "place_id", "photos"],
         locationBias: {
           center: latLng,
-          radius: 10000, // 10km로 반경 축소
+          radius: 5000,
         },
       };
 
@@ -172,9 +171,8 @@ async function initMap(
             results &&
             results.length > 0
           ) {
-            await processResult(results[0]);
+            await processResult(results[0], place);
           } else {
-            // 첫 번째 시도 실패 시, 더 넓은 범위로 재시도
             console.log(`근처 검색 실패, 더 넓은 범위로 재시도 중: ${place}`);
             const widerRequest = {
               query: place,
@@ -187,7 +185,7 @@ async function initMap(
               ],
               locationBias: {
                 center: latLng,
-                radius: 50000, // 50km
+                radius: 20000,
               },
             };
 
@@ -199,7 +197,7 @@ async function initMap(
                   widerResults &&
                   widerResults.length > 0
                 ) {
-                  await processResult(widerResults[0]);
+                  await processResult(widerResults[0], place);
                 } else {
                   console.warn(
                     `검색 실패 - 장소: ${place}, 상태: ${widerStatus}`
@@ -219,7 +217,7 @@ async function initMap(
     }
   }
 
-  async function processResult(result) {
+  async function processResult(result, searchTerm) {
     const location = result.geometry.location;
     const placeId = result.place_id;
 
@@ -297,7 +295,7 @@ async function initMap(
             }
 
             console.log(
-              `Found place: ${placeResult.name} for search term: ${place}`
+              `Found place: ${placeResult.name} for search term: ${searchTerm}`
             );
           }
           resolve();
