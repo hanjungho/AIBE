@@ -27,7 +27,7 @@ async function initMap(
 
   map = new Map(document.getElementById("map"), {
     center: latLng,
-    zoom: 12,
+    zoom: 13,
   });
 
   const service = new PlacesService(map);
@@ -81,7 +81,8 @@ async function initMap(
   if (!bounds.isEmpty()) {
     map.fitBounds(bounds);
     setTimeout(() => {
-      map.setZoom(13); // 원하는 줌 레벨로 조정 (숫자가 클수록 확대)
+      // 원하는 줌 레벨로 조정 (숫자가 클수록 확대)
+      map.setZoom(13);
     }, 1000); // fitBounds 적용 후 줌 변경 (약간의 지연 추가)
   }
 }
