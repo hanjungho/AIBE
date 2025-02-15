@@ -155,121 +155,64 @@ async function initMap(
 
   for (const place of places) {
     try {
-      // 주변 지역 검색을 위한 요청
-      const nearbySearchRequest = {
+      // 첫 번째로 textSearch로 여러 장소를 검색
+      const textSearchRequest = {
+        query: place,
         location: latLng,
-        radius: 5000,
-        type: ["natural_feature", "point_of_interest"],
-        keyword: place,
+        radius: 5000, // 5km 반경
+        fields: ["name", "geometry", "formatted_address", "place_id", "photos"],
       };
 
-      // 먼저 주변 검색 시도
       await new Promise((resolve) => {
-        service.nearbySearch(nearbySearchRequest, async (results, status) => {
-          if (
-            status === google.maps.places.PlacesServiceStatus.OK &&
-            results &&
-            results.length > 0
-          ) {
-            // 결과 필터링 - 이름 유사도 체크
-            const bestMatch = findBestMatch(results, place);
-            if (bestMatch) {
-              await processResult(bestMatch, place);
-              resolve();
-              return;
-            }
-          }
+        service.textSearch(textSearchRequest, async (results, status) => {
+          if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+            const result = results[0]; // 첫 번째 결과 사용 (가장 적합한 결과)
+            await processResult(result, place);
+          } else {
+            console.log(
+              `textSearch 실패, findPlaceFromQuery로 재시도: ${place}`
+            );
+            // textSearch 실패 시 findPlaceFromQuery로 재시도
+            const findPlaceRequest = {
+              query: place,
+              fields: [
+                "name",
+                "geometry",
+                "formatted_address",
+                "place_id",
+                "photos",
+              ],
+              locationBias: {
+                center: latLng,
+                radius: 10000, // 10km로 넓혀서 재시도
+              },
+            };
 
-          // 주변 검색 실패시 텍스트 검색 시도
-          console.log(`주변 검색 실패, 텍스트 검색으로 재시도 중: ${place}`);
-          const textSearchRequest = {
-            query: place,
-            location: latLng,
-            radius: 5000,
-          };
-
-          service.textSearch(
-            textSearchRequest,
-            async (textResults, textStatus) => {
-              if (
-                textStatus === google.maps.places.PlacesServiceStatus.OK &&
-                textResults &&
-                textResults.length > 0
-              ) {
-                const bestMatch = findBestMatch(textResults, place);
-                if (bestMatch) {
-                  await processResult(bestMatch, place);
+            service.findPlaceFromQuery(
+              findPlaceRequest,
+              async (results, status) => {
+                if (
+                  status === google.maps.places.PlacesServiceStatus.OK &&
+                  results &&
+                  results.length > 0
+                ) {
+                  await processResult(results[0], place);
                 } else {
-                  console.warn(`적절한 검색 결과를 찾지 못했습니다: ${place}`);
-                  completedSearches++;
+                  console.warn(
+                    `findPlaceFromQuery 실패: ${place}, 상태: ${status}`
+                  );
                 }
-              } else {
-                console.warn(`검색 실패 - 장소: ${place}, 상태: ${textStatus}`);
-                completedSearches++;
+                resolve();
               }
-              resolve();
-            }
-          );
+            );
+          }
+          resolve();
         });
       });
     } catch (error) {
       console.error(`Error searching for ${place}:`, error);
       completedSearches++;
     }
-  }
-
-  // 결과 중 가장 적절한 것을 찾는 함수
-  function findBestMatch(results, searchTerm) {
-    // 검색어와 결과 이름을 정규화
-    const normalizedSearch = searchTerm.toLowerCase().replace(/\s+/g, "");
-
-    // 거리 가중치를 포함한 점수 계산
-    const scoredResults = results.map((result) => {
-      const normalizedName = result.name.toLowerCase().replace(/\s+/g, "");
-
-      // 기본 유사도 점수 (0-1)
-      let score = calculateSimilarity(normalizedName, normalizedSearch);
-
-      // 거리에 따른 가중치 (가까울수록 높은 점수)
-      if (result.geometry && result.geometry.location) {
-        const distance = google.maps.geometry.spherical.computeDistanceBetween(
-          result.geometry.location,
-          new google.maps.LatLng(latLng)
-        );
-        // 거리가 가까울수록 높은 점수 (최대 2km까지 고려)
-        const distanceScore = Math.max(0, 1 - distance / 2000);
-        score = score * 0.7 + distanceScore * 0.3; // 이름 유사도 70%, 거리 30% 반영
-      }
-
-      return { result, score };
-    });
-
-    // 점수순으로 정렬
-    scoredResults.sort((a, b) => b.score - a.score);
-
-    // 최소 유사도 점수를 넘는 결과가 있으면 반환
-    return scoredResults[0]?.score > 0.3 ? scoredResults[0].result : null;
-  }
-
-  // 문자열 유사도 계산 함수
-  function calculateSimilarity(str1, str2) {
-    const len1 = str1.length;
-    const len2 = str2.length;
-
-    if (len1 < 2 || len2 < 2) return 0;
-
-    let matchCount = 0;
-    for (let i = 0; i < len1 - 1; i++) {
-      const bigram1 = str1.substring(i, i + 2);
-      for (let j = 0; j < len2 - 1; j++) {
-        const bigram2 = str2.substring(j, j + 2);
-        if (bigram1 === bigram2) {
-          matchCount++;
-        }
-      }
-    }
-
-    return matchCount / (Math.max(len1, len2) - 1);
   }
 
   async function processResult(result, searchTerm) {
