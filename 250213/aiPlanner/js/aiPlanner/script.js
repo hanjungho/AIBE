@@ -5,118 +5,6 @@ import { addDBData, getDBDataByUserId, getId, deleteDBData } from "./db.js";
 const googlemapAPiKey = "AIzaSyAg8Mizg_fmz1cMBS3UDFLxOOOzlb0dujw";
 // 구글맵 장소 탐색
 // 비동기 findPlaceFromQuery, 좌표 지정하고 거리로 검색범위
-// let map;
-// let infoWindow; // 하나의 InfoWindow만 사용
-
-// async function initMap(
-//   places = ["Googleplex"],
-//   latLngTxt = '{ "lat": 0, "lng": 0 }'
-// ) {
-//   const { Map } = await google.maps.importLibrary("maps");
-//   const { PlacesService } = await google.maps.importLibrary("places");
-
-//   let latLng;
-//   try {
-//     latLng = JSON.parse(latLngTxt);
-//     if (typeof latLng !== "object" || latLng === null) {
-//       latLng = { lat: 0, lng: 0 };
-//     }
-//   } catch {
-//     latLng = { lat: 0, lng: 0 };
-//   }
-
-//   map = new Map(document.getElementById("map"), {
-//     center: latLng,
-//     zoom: 15,
-//   });
-
-//   const service = new PlacesService(map);
-//   infoWindow = new google.maps.InfoWindow(); // 하나의 InfoWindow만 생성
-
-//   if (!places || !Array.isArray(places) || places.length === 0) {
-//     console.error("장소 데이터가 없거나 올바르지 않습니다.");
-//     return;
-//   }
-
-//   let bounds = new google.maps.LatLngBounds();
-
-//   for (const place of places) {
-//     try {
-//       const request = {
-//         query: place,
-//         location: latLng,
-//         radius: 50000, // 50km
-//       };
-
-//       await new Promise((resolve) => {
-//         service.textSearch(request, (results, status) => {
-//           if (
-//             status === google.maps.places.PlacesServiceStatus.OK &&
-//             results &&
-//             results.length > 0
-//           ) {
-//             const result = results[0];
-//             const location = result.geometry.location;
-//             const placeId = result.place_id;
-//             const address = result.formatted_address || "주소 정보 없음";
-//             const googleMapsUrl = `https://www.google.com/maps/place/?q=place_id:${placeId}`;
-
-//             // 사진 가져오기 (없으면 기본 이미지)
-//             let photoUrl =
-//               result.photos?.[0]?.getUrl() ||
-//               "https://via.placeholder.com/250x150?text=No+Image";
-
-//             const marker = new google.maps.Marker({
-//               map,
-//               position: location,
-//               title: result.name,
-//             });
-
-//             marker.addListener("click", () => {
-//               infoWindow.setContent(`
-//                 <div class="card" style="width: 100%; border-radius: 8px; overflow: hidden;">
-//                   <img src="${photoUrl}" class="card-img-top" alt="${
-//                 result.name
-//               }" style="height: 150px; object-fit: cover;">
-//                   <div class="card-body p-2">
-//                     <h6 class="card-title text-center mb-1">${result.name}</h6>
-//                     <p class="card-text text-muted small text-center">${address.replace(
-//                       /, /g,
-//                       "<br>"
-//                     )}</p>
-//                     <div class="text-center">
-//                       <a href="${googleMapsUrl}" target="_blank" class="btn btn-primary btn-sm">Google 지도에서 보기</a>
-//                     </div>
-//                   </div>
-//                 </div>
-//               `);
-//               infoWindow.open(map, marker);
-//             });
-
-//             bounds.extend(location);
-//             console.log(
-//               `Found place: ${result.name} for search term: ${place}`
-//             );
-//           } else {
-//             console.warn(`검색 실패 - 장소: ${place}, 상태: ${status}`);
-//           }
-//           resolve();
-//         });
-//       });
-//     } catch (error) {
-//       console.error(`Error searching for ${place}:`, error);
-//     }
-//   }
-
-//   if (!bounds.isEmpty()) {
-//     map.fitBounds(bounds);
-//     setTimeout(() => {
-//       if (places.length == 1) {
-//         map.setZoom(15);
-//       }
-//     }, 300);
-//   }
-// }
 let map;
 let infoWindow;
 
@@ -387,7 +275,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 const loadButton = document.createElement("button");
                 loadButton.textContent = "불러오기";
-                loadButton.classList.add("btn", "btn-sm", "btn-success"); // 부트스트랩 버튼 스타일 추가 및 클래스
+                loadButton.classList.add(
+                  "btn",
+                  "btn-sm",
+                  "btn-success",
+                  "btn-call"
+                ); // 부트스트랩 버튼 스타일 추가 및 클래스
                 loadButton.style.marginLeft = "10px"; // 버튼 왼쪽 여백
                 loadButton.style.border = "3px";
 
@@ -411,7 +304,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 const deleteButton = document.createElement("button");
                 deleteButton.textContent = "삭제";
-                deleteButton.classList.add("btn", "btn-sm", "btn-danger"); // 부트스트랩 버튼 스타일 추가 및 클래스
+                deleteButton.classList.add(
+                  "btn",
+                  "btn-sm",
+                  "btn-danger",
+                  "btn-outline-primary",
+                  "btn-delete"
+                ); // 부트스트랩 버튼 스타일 추가 및 클래스
                 deleteButton.style.marginLeft = "10px"; // 버튼 왼쪽 여백
 
                 // 삭제 버튼 클릭 시
@@ -551,9 +450,17 @@ document.addEventListener("DOMContentLoaded", function () {
     box.appendChild(p);
     // 팝업
     const links = p.querySelectorAll("a");
+    links.className = "btn-links";
     links.forEach((link) => {
       // 버튼 형식
-      link.classList.add("btn", "btn-secondary", "btn-sm", "px-1", "py-0");
+      link.classList.add(
+        "btn",
+        "btn-links",
+        "btn-secondary",
+        "btn-sm",
+        "px-1",
+        "py-0"
+      );
       link.style.fontSize = "inherit";
       if (link.getAttribute("href").includes("https://")) {
         // https://이 포함되면 새 창으로 열기
