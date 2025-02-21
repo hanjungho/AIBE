@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI 여행 플래너</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      main {
+        width: 100%;
+        padding: 24px;
+      }
+      section {
+        width: 100%;
+      }
+      form section {
+        margin: 8px 0;
+      }
+      form textarea {
+        resize: none;
+        width: 100%;
+        height: 2.5rem;
+      }
+      form button {
+        padding: 4px;
+      }
+      #box p {
+        margin: 8px 0;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  </head>
+  <body>
+    <main>
+      <section>
+        <h1>AI 여행 플래너</h1>
+        <a
+          href="https://ai.google.dev/gemini-api/docs/api-key?hl=ko"
+          target="_blank"
+        >
+          <button>Gemini API</button>
+        </a>
+        <form id="controller">
+          <section>
+            <label>
+              Gemini API :
+              <input
+                name="GEMINI_API_KEY"
+                type="text"
+                placeholder="Gemini API를 입력해주세요."
+              />
+            </label>
+          </section>
+          <section>
+            <label>
+              도시 :
+              <input
+                name="destination"
+                type="text"
+                placeholder="여행 도시를 입력해주세요."
+              />
+            </label>
+          </section>
+          <section>
+            <label>
+              여행 일수 :
+              <input
+                name="travelDays"
+                type="text"
+                placeholder="여행 일수을 입력해주세요."
+              />
+            </label>
+          </section>
+          <section>
+            <label>
+              여행 시작 시간:
+              <input
+                name="travelStart"
+                type="text"
+                placeholder="시작 시간을 입력해주세요."
+              />
+            </label>
+          </section>
+          <section>
+            <label>
+              여행 종료 시간 :
+              <input
+                name="travelEnd"
+                type="text"
+                placeholder="종료 시간을 입력해주세요."
+              />
+            </label>
+          </section>
+          <section>
+            <label>
+              여행 스타일 :
+              <input
+                name="travelStyle"
+                type="text"
+                placeholder="여행 스타일을 입력해주세요."
+              />
+            </label>
+          </section>
+          <section>
+            <label>
+              동행자 :
+              <input
+                name="companion"
+                type="text"
+                placeholder="동행자와의 관계를 입력해주세요."
+              />
+            </label>
+          </section>
+          <section>
+            <label>
+              예산 :
+              <input
+                name="budget"
+                type="text"
+                placeholder="예산을 입력해주세요."
+              />
+            </label>
+          </section>
+          <section>
+            <button type="submit">제출</button>
+          </section>
+        </form>
+        <div id="box"></div>
+      </section>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+        const box = document.querySelector("#box");
+        const addMsg = (msg) => {
+          const box = document.querySelector("#box");
+          const p = document.createElement("p");
+          p.innerHTML = `<pre>${marked.parse(msg)}</pre>`;
+          box.appendChild(p);
+        };
+
+        const markdown = localStorage.getItem("markdown");
+        if (markdown != undefined) {
+          addMsg(markdown);
+        }
+
+        visitPlaceText = localStorage.getItem("array");
+        if (visitPlaceText != undefined) {
+          console.log(visitPlaceText);
+        }
+
+        const form = document.querySelector("#controller");
+        form.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          // 이전 결과 초기화
+          box.innerHTML = "";
+
+          // 폼 데이터 추출 (순서: position, carrer, briefing)
+          const formData = new FormData(form);
+          const [
+            GEMINI_API_KEY,
+            destination,
+            travelDays,
+            travelStart,
+            travelEnd,
+            travelStyle,
+            companion,
+            budget,
+          ] = [...formData.keys()].map((key) => formData.get(key));
+          // 개발자도구 > 애플리케이션 > 로컬 스토리지 > 현재 주소 > 키 : GEMINI_API_KEY : 직접 입력
+          //   const GEMINI_API_KEY = localStorage.getItem("GEMINI_API_KEY");
+          if (!GEMINI_API_KEY) {
+            addMsg("GEMINI API 키가 설정되지 않았습니다.");
+            return;
+          }
+
+          /**
+           * 모델 호출 함수 (modelPool 통합)
+           * - prompt: 요청할 텍스트
+           * - modelName: 기본 모델명 (재시도 시 변경될 수 있음)
+           * - action: API 액션 (기본 "generateContent")
+           * - generationConfig: 추가 옵션
+           * - autoSearch: 에러 발생 시 모델 풀에서 다른 모델로 전환 여부
+           */
+          const callModel = async (
+            prompt,
+            modelName = "gemini-2.0-pro-exp-02-05",
+            action = "generateContent",
+            generationConfig = {},
+            autoSearch = true
+          ) => {
+            // 재시도에 사용할 모델 풀
+            const modelPool = new Set([
+              "gemini-2.0-flash-001",
+              "gemini-2.0-flash-lite-preview-02-05",
+              "gemini-1.5-flash",
+              "gemini-1.5-flash-8b",
+              "gemini-1.5-pro",
+              "gemini-2.0-pro-exp-02-05",
+              "gemini-2.0-flash-thinking-exp-01-21",
+              "gemini-2.0-flash-exp",
+              "gemini-exp-1206",
+            ]);
+            // 무한 재시도 루프
+            while (true) {
+              // 현재 모델명으로 URL 생성 (모델명 변경 시 최신 URL 사용)
+              const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:${action}?key=${GEMINI_API_KEY}`;
+              console.log("처리 시작", new Date(), "모델:", modelName);
+              try {
+                const response = await axios.post(
+                  url,
+                  {
+                    contents: [
+                      {
+                        parts: [{ text: prompt }],
+                      },
+                    ],
+                    generationConfig,
+                  },
+                  {
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                  }
+                );
+                return response.data.candidates[0].content.parts[0].text;
+              } catch (error) {
+                console.error("오류 발생:", error);
+                if (
+                  error.response &&
+                  error.response.status === 429 // 요청 제한 상태면
+                ) {
+                  if (!autoSearch || modelPool.size === 0) {
+                    throw new Error("모델 재시도 불가: 요청 거부됨.");
+                  }
+                  // 모델 풀에서 새로운 모델 선택
+                  const newModelName = modelPool.keys().next().value;
+                  console.log(
+                    `모델 ${modelName}에서 429 발생, 모델 ${newModelName}로 전환 후 재시도!`
+                  );
+                  modelName = newModelName;
+                  modelPool.delete(newModelName);
+                }
+                // 4초 후 재시도
+                await new Promise((resolve) => setTimeout(resolve, 4000));
+              } finally {
+                console.log("처리 종료", new Date());
+              }
+            }
+          };
+
+          // 첫 번째 LLM
+          const firstAI = async (
+            budget,
+            companion,
+            destination,
+            travelDays,
+            travelStyle
+          ) => {
+            const prompt = `당신은 세계 최고의 숙소 전문가입니다. 단어만 나열하고 다른 설명 **없이** 출력하세요. ${travelDays}일 동안 ${travelStyle} 여행을 위한 ${destination}으로 여행을 ${companion}와 같이 갑니다. 전체 여행 예산이 ${budget} 입니다. 이를 바탕으로 숙소를 추천해주세요. 숙소는 숙소 카테고리가 아닌 세부적으로 특정한 이름을 가진 숙박업소 이름입니다. 고를 수 있도록 넉넉하게 2*${travelDays} 개 정도 추천해주세요. 구글에 검색하면 해당 장소가 나오도록 **영어로** 작성해야합니다. 출력 형태는 숙소이름만 작성하고 구분자는 , 으로 합니다.`;
+            return await callModel(
+              prompt,
+              "gemini-2.0-flash-thinking-exp-01-21"
+            );
+          };
+
+          const firstResponse = await firstAI(
+            budget,
+            companion,
+            destination,
+            travelDays,
+            travelStyle
+          );
+          // 인자
+          addMsg("- **추천 숙소**: " + firstResponse);
+
+          // 두 번째 LLM
+          const secondAI = async (
+            budget,
+            companion,
+            destination,
+            travelDays,
+            travelStyle
+          ) => {
+            const prompt = `당신은 세계 최고의 음식점 전문가입니다. 단어만 나열하고 다른 설명 **없이** 출력하세요. ${travelDays}일 동안 ${travelStyle} 여행을 위한 ${destination}으로 여행을 ${companion}와 같이 갑니다. 전체 여행 예산이 ${budget} 입니다. 이를 바탕으로 음식점을 추천해주세요. 음식점은 음식 이름이 아닌 세부적으로 특정한 이름을 가진 가게이름입니다. 고를 수 있도록 넉넉하게 4*${travelDays} 개 정도 추천해주세요. 구글에 검색하면 해당 장소가 나오도록 **영어로** 작성해야합니다. 출력 형태는 음식점이름만 작성하고 구분자는 , 으로 합니다.`;
+            return await callModel(
+              prompt,
+              "gemini-2.0-flash-thinking-exp-01-21"
+            );
+          };
+
+          const secondResponse = await secondAI(
+            budget,
+            companion,
+            destination,
+            travelDays,
+            travelStyle
+          );
+          addMsg("- **추천 음식점**: " + secondResponse);
+
+          // 세 번째 LLM
+          const thirdAI = async (
+            budget,
+            companion,
+            destination,
+            travelDays,
+            travelStyle
+          ) => {
+            const prompt = `당신은 세계 최고의 관광지 전문가입니다. 단어만 나열하고 다른 설명 **없이** 출력하세요. ${travelDays}일 동안 ${travelStyle} 여행을 위한 ${destination}으로 여행을 ${companion}와 같이 갑니다. 전체 여행 예산이 ${budget} 입니다. 이를 바탕으로 관광지를 추천해주세요. 관광지는 도시, 지역명이 아닌 특징이 있는 세부적인 spot입니다. 고를 수 있도록 넉넉하게 3*${travelDays} 개 정도 추천해주세요. 구글에 검색하면 해당 장소가 나오도록 **영어로** 작성해야합니다. 출력 형태는 관광지이름만 작성하고 구분자는 , 으로 합니다.`;
+            return await callModel(
+              prompt,
+              "gemini-2.0-flash-thinking-exp-01-21"
+            );
+          };
+
+          const thirdResponse = await thirdAI(
+            budget,
+            companion,
+            destination,
+            travelDays,
+            travelStyle
+          );
+          addMsg("- **추천 관광지**: " + thirdResponse);
+
+          // 네 번째 LLM
+          const fourthAI = async (
+            firstResponse,
+            secondResponse,
+            thirdResponse,
+            budget,
+            companion,
+            destination,
+            travelStart,
+            travelEnd,
+            travelDays,
+            travelStyle
+          ) => {
+            const prompt = `당신은 세계 최고의 여행플래너입니다. 숙소: ${firstResponse}, 음식점: ${secondResponse}, 관광지: ${thirdResponse} 를 참고하여 예산 ${budget} 내에서 ${companion} 와의 최적화된 ${destination} 여행 계획을 작성해주세요. 숙박, 식사, 활동, 교통비 등을 포함하여 전체 여행 계획을 예산에 맞게 최적화해 주세요. 최소한의 이동경로로 최적화해 주세요. 한국이 아닌 나라는 외국입니다. ${destination}이 한국이 아닌 다른 나라이면 시작과 종료는 인천공항으로 입니다. 한국일 경우 시작과 종료는 ${destination}에서 합니다. 여행 기간은 ${travelDays}입니다. 선호하는 여행 스타일은 ${travelStyle}입니다. 시작 시간은 ${travelStart}이고 도착 시간은 ${travelEnd} 입니다. 마크다운 문법으로 작성하세요. 모든 장소는 구글맵의 해당 장소랑 연결되도록 구글맵 링크를 [Apple 여의도](https://www.google.com/maps/search/Apple+여의도)으 헝식은 작성하세요. 올바른 URL 형식은 https://www.google.com/maps/search/Apple+여의도 입니다. 마크다운은 아래를 참고하세요.
+# ✈ [여행 제목]
+
+## 📌 1. 여행 개요  
+- **여행지:**  
+- **여행 기간:**  
+- **여행 컨셉:**  
+- **예산:**  
+- **동행자:**  
+- **환전 계획:**  
+- **교통 패스:**  
+
+---
+
+## 📅 2. 여행 일정 (Day별 상세 일정)  
+
+### 📆 Day 1 (날짜) - 일정 요약  
+**🚀 시간 | 활동명**  
+- 상세 내용  
+
+**✈ 시간 | 항공 이동**  
+- 출발지 → 도착지 (항공편 정보)  
+
+**🏨 시간 | 숙소 체크인**  
+- 숙소 이름 및 위치  
+
+**🍽️ 시간 | 식사 (식당 이름)**  
+- 추천 메뉴 및 예상 비용  
+
+**🏙️ 시간 | 관광지 방문**  
+- 장소 설명 및 주요 활동  
+
+**🛍️ 시간 | 쇼핑**  
+- 추천 쇼핑 장소  
+
+**🌙 시간 | 야경 감상 or 자유시간**  
+- 추가 활동  
+
+**🛏️ 시간 | 숙소 귀가 & 취침**  
+
+---
+
+### 📆 Day 2 (날짜) - 일정 요약  
+(동일한 형식 반복)  
+
+---
+
+## 💰 3. 예산 계획 (1인 기준)  
+
+| 항목 | 예상 비용 (현지 통화) | 예상 비용 (원화) |  
+|------|----------------|----------------|  
+| ✈ 항공권 |  |  |  
+| 🏨 숙소 |  |  |  
+| 🚇 교통비 |  |  |  
+| 🍣 식비 |  |  |  
+| 🎡 입장료 |  |  |  
+| 🛍 쇼핑 예산 |  |  |  
+| **총합** | **XX,XXX** | **XXX만 원** |  
+
+---
+
+## 📝 4. 체크리스트  
+✅ **여권 및 비자 확인**  
+✅ **항공권 & 숙소 예약 확인**  
+✅ **유심/eSIM 또는 포켓 Wi-Fi 준비**  
+✅ **교통 패스 구매**  
+✅ **환전 계획**  
+✅ **여행자 보험 가입**  
+✅ **필수 짐 체크**  
+- 📱 휴대폰 & 충전기  
+- 💳 신용카드 & 현금  
+- 🧥 계절별 옷 준비  
+- 🩹 간단한 상비약  
+
+---
+
+## 📜 5. 기타 참고 사항  
+- **긴급 연락처:**  
+- **필수 앱 다운로드:**  
+- **현지 날씨 정보:**  
+- **로밍 및 데이터 사용 계획:**  
+
+            
+            `;
+            return await callModel(
+              prompt,
+              "gemini-2.0-flash-thinking-exp-01-21"
+            );
+          };
+
+          const fourthResponse = await fourthAI(
+            firstResponse,
+            secondResponse,
+            thirdResponse,
+            budget,
+            companion,
+            destination,
+            travelStart,
+            travelEnd,
+            travelDays,
+            travelStyle
+          );
+          localStorage.setItem("markdown", fourthResponse);
+          addMsg(`- AI 여행 플래너: 
+${fourthResponse}`);
+
+          const fifthAI = async (fourthResponse) => {
+            const prompt = `당신은 최고의 데이터 수집가입니다. 단어만 나열하고 다른 설명 **없이** 출력하세요. 아래의 여행 플래너에서 방문 장소를 수집하여 나열해주세요. 장소는 구글에 검색하면 해당 장소가 나오도록 **영어로** 작성해야합니다. 중복되는 장소없이 나열하세요. 출력 형태는 숙소이름만 작성하고 구분자는 , 으로 합니다.
+            ${fourthResponse}`;
+            return await callModel(
+              prompt,
+              "gemini-2.0-flash-thinking-exp-01-21"
+            );
+          };
+
+          localStorage.setItem("array", JSON.stringify());
+
+          const fifthResponse = await fifthAI(fourthResponse);
+          const visitPlace = fifthResponse.split(",");
+          console.log(visitPlace);
+          localStorage.setItem("array", JSON.stringify(visitPlace));
+          addMsg(`- **방문 장소**: ${fifthResponse}`);
+        });
+      });
+    </script>
+  </body>
+</html>

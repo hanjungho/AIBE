@@ -1,0 +1,72 @@
+/* 전체적인 스타일 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Arial", sans-serif;
+}
+
+body {
+  background-color: #f0f8ff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* 중앙에 콘텐츠 배치 */
+#main-container {
+  text-align: center;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  width: 80%;
+  max-width: 600px;
+}
+
+h1 {
+  font-size: 2.5rem;
+  color: #0056b3;
+  margin-bottom: 30px;
+  font-weight: bold;
+}
+
+h2 {
+  font-size: 1.5rem;
+  color: #2c3e50;
+  margin-top: 20px;
+  font-weight: 600;
+}
+
+/* 이미지 컨테이너 스타일 */
+#container {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+/* 이미지 스타일 */
+div > img {
+  width: 240px;
+  height: 360px;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* 이미지에 마우스를 올리면 커지고 그림자가 생김 */
+div > img:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* 결과 텍스트 스타일 */
+#result {
+  font-size: 1.5rem;
+  color: #e74c3c;
+  font-weight: bold;
+}

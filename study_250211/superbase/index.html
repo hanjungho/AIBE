@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Supabase</title>
+  </head>
+  <body>
+    <section>
+      <form id="controller">
+        <input type="text" name="content" />
+        <button>등록</button>
+      </form>
+    </section>
+    <section>
+      <form id="file">
+        <input type="file" id="fileInput" />
+        <button>파일 등록</button>
+      </form>
+    </section>
+    <section id="container"></section>
+  </body>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // https://supabase.com/dashboard
+      const supabaseUrl = "https://ofpywjxgpdnftsddhpeg.supabase.co";
+      const supabaseAnonKey =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mcHl3anhncGRuZnRzZGRocGVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkyMzY1MTksImV4cCI6MjA1NDgxMjUxOX0.DFmvgQAf6KRIUKUdjp8kvWpMr_gqZt_F3t_cdbdwrIo";
+      const tableName = "MY_TABLE";
+
+      // controller form
+      const form = document.querySelector("#controller");
+      if (form) {
+        form.addEventListener("submit", async (event) => {
+          event.preventDefault(); // 한번 form 관련된 걸 다 밀어버려서...
+          const formData = new FormData(form);
+          console.log(formData.get("content"));
+
+          const response = await fetch(`${supabaseUrl}/rest/v1/${tableName}`, {
+            method: "POST",
+            headers: {
+              apikey: supabaseAnonKey,
+              Authorization: `Bearer ${supabaseAnonKey}`,
+              "Content-Type": "application/json",
+              Prefer: "return=representation",
+            },
+            body: JSON.stringify({
+              content: formData.get("content"),
+            }),
+          });
+          console.log(await response.json());
+
+          const response2 = await fetch(`${supabaseUrl}/rest/v1/${tableName}`, {
+            method: "GET",
+            headers: {
+              apikey: supabaseAnonKey,
+              Authorization: `Bearer ${supabaseAnonKey}`,
+              "Content-Type": "application/json",
+            },
+          });
+          const data = await response2.json();
+          document.querySelector("#container").textContent =
+            JSON.stringify(data);
+        });
+      }
+
+      // file form
+      const form2 = document.querySelector("#file");
+      if (form2) {
+        form2.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const { files } = document.querySelector("#fileInput");
+          const file = files[0];
+          console.log(file);
+          const folderName = "uploads";
+          const fileName = `${Date.now()}_${file.name}`;
+          const filePath = `${folderName}/${fileName}`;
+          const response = await fetch(
+            `${supabaseUrl}/storage/v1/object/${bucketName}/${filePath}`,
+            {
+              method: "put",
+              headers: {
+                apikey: supabaseAnonKey,
+                Authorization: `Bearer ${supabaseAnonKey}`,
+                "Content-Type": file.type,
+              },
+              body: file,
+            }
+          );
+          console.log(await response.json());
+        });
+      }
+    });
+  </script>
+</html>
