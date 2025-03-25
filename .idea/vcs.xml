@@ -13,5 +13,6 @@
     <mapping directory="$PROJECT_DIR$/study_250319/concert-booking" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/study_250320/mytype-llm-wrapper" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/study_250320/mytype-spring" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/study_250324/know-about-me/know-about-me" vcs="Git" />
   </component>
 </project>
