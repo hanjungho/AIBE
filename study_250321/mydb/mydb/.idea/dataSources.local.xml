@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="dataSourceStorageLocal" created-in="IU-243.24978.46">
+    <data-source name="@localhost" uuid="30ef9e43-2ec9-4aa8-aa61-58b33f1cdbbe">
+      <database-info product="MySQL" version="8.0.41" jdbc-version="4.2" driver-name="MySQL Connector/J" driver-version="mysql-connector-j-8.2.0 (Revision: 06a1f724497fd81c6a659131fda822c9e5085b6c)" dbms="MYSQL" exact-version="8.0.41" exact-driver-version="8.2">
+        <extra-name-characters>#@</extra-name-characters>
+        <identifier-quote-string>`</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="exact" quoted-identifiers="exact" />
+      <secret-storage>master_key</secret-storage>
+      <user-name>root</user-name>
+      <schema-mapping>
+        <introspection-scope>
+          <node kind="schema" qname="@" />
+        </introspection-scope>
+      </schema-mapping>
+    </data-source>
+    <data-source name="postgres@aws-0-ap-northeast-2.pooler.supabase.com" uuid="6949c185-986e-4697-b313-43f94bb0bbe8">
+      <database-info product="PostgreSQL" version="15.8" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.7.3" dbms="POSTGRES" exact-version="15.8" exact-driver-version="42.7">
+        <identifier-quote-string>&quot;</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
+      <secret-storage>master_key</secret-storage>
+      <user-name>postgres.ogmudeqgzxoqkqgexcpl</user-name>
+      <schema-mapping>
+        <introspection-scope>
+          <node kind="database" qname="@">
+            <node kind="schema" qname="@" />
+          </node>
+        </introspection-scope>
+      </schema-mapping>
+      <ssl-config use-ide-store="true" use-java-store="true" use-system-store="true">
+        <ca-cert>$USER_HOME$/Downloads/prod-ca-2021.crt</ca-cert>
+        <enabled>true</enabled>
+        <mode>REQUIRE</mode>
+      </ssl-config>
+    </data-source>
+    <data-source name="mydb_gf7r@dpg-cvega9rtq21c73edqr7g-a.singapore-postgres.render.com" uuid="f6273ad4-aae5-42cc-9623-0bcfb43ced44">
+      <database-info product="PostgreSQL" version="16.8 (Debian 16.8-1.pgdg120+1)" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.7.3" dbms="POSTGRES" exact-version="16.8" exact-driver-version="42.7">
+        <identifier-quote-string>&quot;</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
+      <secret-storage>master_key</secret-storage>
+      <user-name>mydb_gf7r_user</user-name>
+      <schema-mapping>
+        <introspection-scope>
+          <node kind="database" qname="@">
+            <node kind="schema" qname="@" />
+          </node>
+        </introspection-scope>
+      </schema-mapping>
+    </data-source>
+  </component>
+</project>
