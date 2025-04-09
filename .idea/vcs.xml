@@ -4,6 +4,9 @@
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/study_250331/meal-is-all-you-need" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/study_250401/search-bookmark" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/study_250401/simple-community" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/study_250402/jpa-exercise" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/study_250407/my-boot" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/study_250408/boot-jsp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/study_250409/boot-thymeleaf" vcs="Git" />
   </component>
 </project>
