@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>끝말잇기 게임</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Nanum Gothic', sans-serif;
+        }
+        .game-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+        .game-title {
+            background: linear-gradient(45deg, #6c5ce7, #a29bfe);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(108, 92, 231, 0.3);
+        }
+        .word-card {
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1rem;
+            transition: transform 0.2s;
+            border-left: 5px solid #6c5ce7;
+        }
+        .word-card:hover {
+            transform: translateY(-3px);
+        }
+        .word-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+        }
+        .word-date {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        .success-badge {
+            background-color: #00b894;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        .fail-badge {
+            background-color: #ff7675;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        .first-word-badge {
+            background-color: #fdcb6e;
+            color: #333;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        .btn-custom-edit {
+            width: 100px;
+            background-color: #74b9ff;
+            color: white;
+            border: none;
+        }
+        .btn-custom-delete {
+            background-color: #ff7675;
+            color: white;
+            border: none;
+        }
+        .btn-custom-reset {
+            background-color: #e17055;
+            color: white;
+            border: none;
+        }
+        .btn-custom-submit {
+            background-color: #00b894;
+            color: white;
+            border: none;
+        }
+        .form-container {
+            background-color: #f1f3f5;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 2rem;
+        }
+        .message-alert {
+            margin-top: 1rem;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container game-container">
+    <h1 class="game-title">
+        <i class="fas fa-gamepad me-2"></i>
+        끝말잇기 게임
+    </h1>
+
+    <!-- 알림 메시지 -->
+    <div th:if="${message}" class="alert alert-info message-alert" role="alert">
+        <i class="fas fa-info-circle me-2"></i>
+        <span th:text="${message}"></span>
+    </div>
+
+    <!-- 단어 리스트 -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <i class="fas fa-list me-2"></i>
+            단어 목록
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                <li th:each="word, iterStat: ${data}" class="list-group-item word-card p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <span class="badge bg-primary me-2" th:text="${iterStat.index + 1}"></span>
+                            <span class="word-text" th:text="${word.getText()}"></span>
+                        </div>
+                        <span class="word-date" th:text="${word.getCreatedAt()}"></span>
+                    </div>
+
+                    <div class="d-flex gap-2 mb-2">
+                        <span th:if="${iterStat.first}" class="first-word-badge">
+                            <i class="fas fa-star me-1"></i> 첫 단어입니다!
+                        </span>
+
+                        <div th:if="${!iterStat.first}">
+                            <span th:if="${#strings.substring(word.getText(), 0, 1).equals(#strings.substring(data[iterStat.index - 1].getText(), data[iterStat.index - 1].getText().length() - 1, data[iterStat.index - 1].getText().length()))}" class="success-badge">
+                                <i class="fas fa-check-circle me-1"></i> 성공!
+                            </span>
+                            <span th:if="!${#strings.substring(word.getText(), 0, 1).equals(#strings.substring(data[iterStat.index - 1].getText(), data[iterStat.index - 1].getText().length() - 1, data[iterStat.index - 1].getText().length()))}" class="fail-badge">
+                                <i class="fas fa-times-circle me-1"></i> 실패!
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <form th:action="@{/update}" method="post" class="d-flex me-2">
+                            <input hidden="hidden" name="id" th:value="${word.getUuid()}">
+                            <input name="text" class="form-control form-control-sm me-2" placeholder="수정할 단어">
+                            <button class="btn btn-sm btn-custom-edit">
+                                <i class="fas fa-edit me-1"></i> 수정
+                            </button>
+                        </form>
+                        <form th:action="@{/delete}" method="post">
+                            <input hidden="hidden" name="id" th:value="${word.getUuid()}">
+                            <button class="btn btn-sm btn-custom-delete">
+                                <i class="fas fa-trash me-1"></i> 삭제
+                            </button>
+                        </form>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 관리 버튼 -->
+    <div class="d-flex justify-content-end mb-4">
+        <form th:action="@{/reset}" method="post">
+            <button class="btn btn-custom-reset">
+                <i class="fas fa-sync-alt me-1"></i> 리셋하기
+            </button>
+        </form>
+    </div>
+
+    <!-- 단어 입력 폼 -->
+    <div class="form-container">
+        <h4 class="mb-3">
+            <i class="fas fa-pen me-2"></i>
+            새 단어 추가
+        </h4>
+        <form method="post" th:action="@{/word}" th:object="${wordForm}" class="row g-3 align-items-end">
+            <div class="col-md-9">
+                <label for="word" class="form-label">단어</label>
+                <input type="text" th:field="*{word}" id="word" class="form-control" placeholder="새로운 단어를 입력하세요">
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-custom-submit w-100">
+                    <i class="fas fa-paper-plane me-1"></i> 제출
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
