@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: simple-boot
+
+  profiles:
+    active: dev
+
+  datasource:
+    driver-class-name: org.h2.Driver
+  jpa:
+    show-sql: true
